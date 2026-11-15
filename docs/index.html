@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Говорю">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1f3a5f">
+<title>Говорю картинками</title>
+<style>
+:root{--ts:170px;--bg:#f4f1ea;--ink:#1b1b1b;--accent:#1f5fbf;--ok:#1d8a3c;--bad:#c0392b;--card:#fff;--line:#d8d2c4}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;touch-action:manipulation}
+body{box-sizing:border-box;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);display:flex;flex-direction:column;height:100dvh;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+
+#bar{flex:none;display:flex;gap:10px;padding:10px;background:#fff;border-bottom:3px solid var(--line);align-items:stretch}
+body.left #bar{flex-direction:row-reverse}
+#sentence{flex:1;min-height:96px;display:flex;flex-wrap:wrap;gap:8px;align-content:center;align-items:center;padding:6px 8px;border:3px dashed var(--line);border-radius:16px;overflow-y:auto;max-height:38vh}
+#sentence .hint{color:#999;font-size:20px;padding:0 10px}
+#sentence .pv{flex:0 0 100%;font-size:32px;font-weight:700;color:#14325c;line-height:1.15;padding:2px 4px 4px}
+.chip{display:flex;align-items:center;gap:6px;background:#e8f0fe;border:2px solid #b9cdf5;border-radius:12px;padding:3px 10px 3px 4px;font-size:20px;font-weight:600}
+.chip .pic{width:40px;height:40px;border-radius:8px;font-size:28px}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:340px}
+.acts button{border-radius:16px;font-size:18px;font-weight:700;color:#fff;padding:6px;min-height:50px}
+.sayrow{grid-column:1/-1;display:flex;gap:8px}
+#say{background:var(--ok);font-size:26px!important;flex:1 1 0;min-height:62px!important}
+#maxb{background:#7b3fe4;font-size:19px!important;flex:1 1 0;min-height:62px!important;line-height:1.1}
+.sa{grid-column:1/-1;background:#fff;border:3px solid #1f3a5f;border-radius:14px;padding:12px 16px;font-size:22px;font-weight:700;text-align:left}
+.scq{grid-column:1/-1;background:#fff7e0;border:3px solid #e0a800;border-radius:14px;padding:14px;font-size:24px;font-weight:700}
+.scn{grid-column:1/-1;display:flex;gap:8px}.scn button{flex:1;font-size:20px;padding:10px;border-radius:12px;background:#1f3a5f;color:#fff;font-weight:700}
+.rl{display:flex;gap:8px;align-items:center;margin:4px 0;font-size:17px}.rl span{flex:1}
+.mxc{display:flex;gap:8px;margin:6px 0}.mxc .btn{flex:1;text-align:left;font-size:22px}.mxc .x{flex:none;background:#eee;color:#333}
+#back{background:#e08a00}#clear{background:var(--bad)}#big{background:#1f5fbf}
+
+.row{flex:none;display:flex;gap:8px;padding:8px 10px;overflow-x:auto;align-items:center;scrollbar-width:none}
+.row::-webkit-scrollbar{display:none}
+#sugg{background:#eaf3ea;border-bottom:2px solid var(--line);min-height:64px}
+#sugg .cap{font-size:14px;color:#4a6a4a;flex:0 0 auto}
+#sugg .tile{flex:0 0 auto;width:auto;flex-direction:row;gap:8px;padding:6px 14px;aspect-ratio:auto}
+#sugg .tile .pic{width:44px;height:44px;font-size:32px;flex:none}
+#sugg .tile .lbl{font-size:22px}
+#tabs{background:#1f3a5f}
+#tabs button{flex:0 0 auto;color:#fff;font-size:20px;font-weight:600;padding:11px 15px;border-radius:14px;white-space:nowrap}
+#tabs button.on{background:#fff;color:#1f3a5f}
+
+#kb{flex:none;display:none;background:#dfe6ee;padding:6px;gap:5px;flex-direction:column}
+body.dk #kb{display:flex}
+body.nokb #kb{display:none}
+#kb .kr{display:flex;gap:5px}
+#kb button{flex:1;height:clamp(40px,6.5vh,56px);font-size:24px;font-weight:700;background:#fff;border:2px solid #9ab;border-radius:10px;min-width:0;padding:0}
+#kb button.w{flex:3}
+.dq{grid-column:1/-1;display:flex;gap:8px;align-items:center;background:#fff;border:3px solid #1f3a5f;border-radius:14px;padding:6px 12px;font-size:30px;min-height:56px;font-weight:700}
+.dq #dqt{flex:1}.dq i{color:#999;font-size:20px;font-style:normal;font-weight:400}
+.dq button,.more{font-size:24px;padding:6px 14px;border-radius:10px;background:#eef;border:2px solid #99b}
+.more{grid-column:1/-1;padding:14px}
+.thm{background:#eaf1fb;border:3px solid #1f3a5f;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;height:calc(var(--ts)*.9);font-weight:700;font-size:calc(var(--ts)*.13);text-align:center}
+.thm .e{font-size:calc(var(--ts)*.35);line-height:1}.thm small{font-weight:400;color:#567;font-size:.8em}
+.thm.wide{grid-column:1/-1;height:auto;flex-direction:row;font-size:24px;padding:12px}
+.nopic .pic{display:none}.nopic .lbl{font-size:calc(var(--ts)*.2)}
+#grid{flex:1 1 0;min-height:0;overflow-y:auto;padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--ts),1fr));gap:12px;align-content:start;grid-auto-rows:min-content}
+.tile{background:var(--card);border:3px solid var(--line);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;box-shadow:0 2px 0 rgba(0,0,0,.08);position:relative;overflow:hidden}
+#grid .tile{height:calc(var(--ts)*1.05);min-width:0}
+.t-frame{background:#e8f0fe;border-color:#9db8ee}
+.t-verb{background:#eaf7ea;border-color:#9fd09f}
+.t-adj,.t-pron{background:#fff7dc;border-color:#e2cf8a}
+.t-num{background:#f3e8fb;border-color:#c9a7e6}
+.tile:active{transform:scale(.96);border-color:var(--accent)}
+.pic{display:flex;align-items:center;justify-content:center;font-size:calc(var(--ts)*.42);line-height:1;flex:1;width:100%;min-height:0;background-size:cover;background-position:center;border-radius:12px}
+.lbl{font-size:calc(var(--ts)*.15);font-weight:700;text-align:center;line-height:1.1;word-break:break-word}
+.tile .cnt{position:absolute;top:4px;right:8px;font-size:13px;color:#888}
+.phrase{grid-column:1/-1;flex-direction:row;justify-content:flex-start;padding:14px 18px;gap:16px;height:auto!important}
+.phrase .lbl{font-size:30px;text-align:left}
+.phrase .ps{display:flex;gap:6px}
+.phrase .ps .pic{width:48px;height:48px;font-size:34px;flex:none}
+.empty{grid-column:1/-1;text-align:center;color:#777;font-size:22px;padding:40px}
+
+#editbar{flex:none;display:none;background:#fff3cd;border-bottom:2px solid #e0c35a;padding:8px 10px;gap:8px;flex-wrap:wrap;align-items:center}
+body.edit #editbar{display:flex}
+#editbar b{font-size:18px;margin-right:6px}
+#editbar button,.btn{background:#1f3a5f;color:#fff;border-radius:12px;padding:12px 16px;font-size:18px;font-weight:600}
+.btn.grey{background:#888}.btn.red{background:var(--bad)}.btn.green{background:var(--ok)}
+body.edit #grid .tile{border-style:dashed}
+.addtile{border:3px dashed #1f5fbf;color:#1f5fbf}
+#gear{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:calc(12px + env(safe-area-inset-left));width:56px;height:56px;border-radius:50%;background:#1f3a5f;color:#fff;font-size:26px;opacity:.55;z-index:5}
+body.left #gear{left:auto;right:12px}
+body.edit #gear{opacity:1;background:#e0a800}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:10;padding:12px}
+.modal.on{display:flex}
+.sheet{background:#fff;border-radius:20px;padding:18px;width:min(580px,100%);max-height:94vh;overflow-y:auto;user-select:text;-webkit-user-select:text}
+.sheet h2{margin:0 0 12px;font-size:24px}
+.sheet label{display:block;margin:10px 0 4px;font-weight:600}
+.sheet input[type=text],.sheet select{width:100%;font-size:19px;padding:9px;border:2px solid var(--line);border-radius:10px}
+.sheet input[type=range]{width:100%}
+.sheet .line{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.sheet .chk{display:flex;align-items:center;gap:10px;font-weight:500;margin:8px 0}
+.sheet .chk input{width:26px;height:26px}
+.sec{border-left:4px solid #1f5fbf;padding-left:10px;margin-top:8px;display:none}
+#prev{width:130px;height:130px;border-radius:14px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:84px;background-size:cover;background-position:center;margin:6px 0}
+.small{font-size:14px;color:#666;margin-top:4px}
+#aRes{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px;margin-top:10px}
+.atile{background:#fff;border:2px solid var(--line);border-radius:12px;padding:4px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.atile img{width:88px;height:88px;object-fit:contain}
+.atile span{font-size:12px;text-align:center;line-height:1.1}
+.cal{grid-column:1/-1}
+.calhead{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:8px}
+.calhead .t{font-size:26px;font-weight:800;flex:1;text-align:center}
+.calhead button{background:#1f3a5f;color:#fff;border-radius:12px;padding:10px 16px;font-size:22px;font-weight:700}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cw{text-align:center;font-weight:700;color:#666;font-size:16px}
+.cd{height:clamp(40px,6.2vh,62px);border:2px solid var(--line);border-radius:12px;background:#fff;font-size:26px;font-weight:700;position:relative}
+.cd.we{color:#c0392b}.cd.past{color:#aaa}
+.cd.today{border-color:#1f5fbf;background:#e8f0fe}
+.cd.sel{background:#1f5fbf;color:#fff}
+.cd.note::after{content:'';position:absolute;bottom:6px;right:8px;width:10px;height:10px;border-radius:50%;background:#e08a00}
+.calact{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.calact button{background:#fff;border:3px solid #9db8ee;border-radius:14px;padding:12px 16px;font-size:24px;font-weight:700}
+.calact .ttl{flex:0 0 100%;font-size:18px;color:#555}
+@media (max-width:640px){
+ #bar{flex-direction:column!important;gap:8px;padding:8px}
+ #sentence{min-height:64px;max-height:26vh}#sentence .pv{font-size:26px}
+ .acts{width:100%}.acts button{min-height:44px;font-size:16px}
+ #say{font-size:22px!important;min-height:52px!important}#maxb{font-size:16px!important;min-height:52px!important}
+ #sugg{min-height:52px}#sugg .tile .lbl{font-size:18px}#sugg .tile .pic{width:34px;height:34px;font-size:24px}
+ #tabs button{font-size:17px;padding:9px 12px}
+}
+@media (max-height:520px){
+ #bar{padding:5px;gap:6px}#sentence{min-height:50px;max-height:30vh}#sentence .pv{font-size:22px}
+ .acts{width:300px;gap:5px}.acts button{min-height:30px;font-size:14px;border-radius:10px}
+ #say{font-size:18px!important;min-height:36px!important}#maxb{font-size:14px!important;min-height:36px!important}
+ #sugg{min-height:40px;padding:4px 8px}#sugg .tile{padding:2px 10px}#sugg .tile .pic{width:28px;height:28px;font-size:20px}#sugg .tile .lbl{font-size:15px}
+ #tabs{padding:4px 8px}#tabs button{font-size:15px;padding:5px 10px}
+ #grid{padding:8px;gap:8px}
+ #kb button{height:34px;font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <div id="sentence"></div>
+  <div class="acts">
+    <div class="sayrow"><button id="say">🔊 Сказать</button><button id="maxb">📤 Поделиться в Макс</button></div>
+    <button id="back">⌫ Стереть</button>
+    <button id="clear">✕ Очистить</button>
+  </div>
+</div>
+<div id="sugg" class="row"></div>
+<div id="tabs" class="row"></div>
+<div id="editbar">
+  <b>✏️ Редактирование</b>
+  <button id="eAdd">➕ Плитка</button>
+  <button id="eCat">📁 Новая вкладка</button>
+  <button id="eRen">✎ Переименовать вкладку</button>
+  <button id="eDel" class="btn red">🗑 Удалить вкладку</button>
+  <button id="eCam">📷 Быстрое фото</button>
+  <button id="eRec">🎙 Записать голос</button>
+  <button id="eSet">⚙ Настройки</button>
+  <button id="eDone" class="btn green">Готово</button>
+</div>
+<div id="grid"></div>
+<div id="kb"></div>
+<button id="gear" title="Нажми — настройки. Удерживай 1 секунду — редактирование">⚙</button>
+
+<!-- редактор плитки -->
+<div class="modal" id="mItem"><div class="sheet">
+  <h2 id="mItemT">Плитка</h2>
+  <div id="prev"></div>
+  <div class="line" style="margin-top:4px">
+    <button class="btn" id="fPhoto">📷 Фото</button>
+    <button class="btn" id="fAra">🔎 ARASAAC</button>
+    <button class="btn grey" id="fNoPhoto">Убрать</button>
+  </div>
+  <input type="file" id="fFile" accept="image/*" hidden>
+  <input type="file" id="qFile" accept="image/*" capture="environment" hidden>
+  <label>Подпись на плитке</label>
+  <input type="text" id="fLabel" placeholder="например: Лада, Чай, Очки">
+  <label>Тип слова (чтобы программа сама меняла окончания)</label>
+  <select id="fType">
+    <option value="noun">Существительное (человек, предмет, место)</option>
+    <option value="adj">Прилагательное (горячий, большой)</option>
+    <option value="verb">Глагол (посмотреть, купить)</option>
+    <option value="frame">Начало фразы / вопросительное слово / предлог</option>
+    <option value="word">Слово или фраза «как есть»</option>
+  </select>
+
+  <div class="sec" id="secNoun">
+    <label>Род</label>
+    <select id="fGender"><option value="m">мужской (он: стол, друг)</option><option value="f">женский (она: вода, дочь)</option><option value="n">средний (оно: молоко)</option><option value="p">только множественное (очки, часы)</option></select>
+    <label class="chk"><input type="checkbox" id="fAn"> Живое (человек, животное)</label>
+    <label class="chk"><input type="checkbox" id="fPn"> Имя собственное (Лада, Максим)</label>
+    <label class="chk"><input type="checkbox" id="fIdecl"> Не изменяется (кофе, меню, такси)</label>
+    <label class="chk"><input type="checkbox" id="fQt"> Мера / ёмкость (стакан, чашка: дальше «воды», «чая»)</label>
+    <div class="small" id="fAuto"></div>
+    <label>Свои формы, если авто неверно (родит., вин., дат., твор., предл. — через запятую)</label>
+    <input type="text" id="fForms" placeholder="пусто = автоматически">
+  </div>
+  <div class="sec" id="secVerb">
+    <label>После глагола существительное ставится в…</label>
+    <select id="fGov"><option value="">не меняет</option><option value="acc">винительный (посмотреть меню)</option><option value="dat">дательный (позвонить дочери)</option><option value="gen">родительный (достичь цели)</option><option value="inst">творительный (заниматься спортом)</option></select>
+  </div>
+  <div class="sec" id="secFrame">
+    <label>Текст (для вставки подходящего окончания напиши {})</label>
+    <input type="text" id="fTx" placeholder="например: мне {}">
+    <label>Форма вариантов для {} (м / ж / ср / мн через «/»)</label>
+    <input type="text" id="fAg" placeholder="нужен/нужна/нужно/нужны">
+    <label>Существительные после этого слова — в падеже</label>
+    <select id="fCs"><option value="nom">именительный (где туалет)</option><option value="gen">родительный (до вокзала)</option><option value="dat">дательный (к врачу)</option><option value="acc">винительный (дайте воду)</option><option value="inst">творительный (с молоком)</option><option value="prep">предложный (в больнице)</option></select>
+    <label>Конец фразы</label>
+    <select id="fQm"><option value="">точка</option><option value="?">вопрос ?</option><option value="!">восклицание !</option></select>
+  </div>
+  <div class="sec" id="secWord">
+    <label>Запятая после (для «да», «простите»)</label>
+    <select id="fLead"><option value="">нет</option><option value="1">да, всегда если дальше есть слова</option></select>
+    <label class="chk"><input type="checkbox" id="fPl"> Это «пожалуйста» (запятые ставятся сами)</label>
+  </div>
+
+  <label>Как произносить (необязательно, вместо подписи)</label>
+  <input type="text" id="fSay" placeholder="если пусто — как подпись">
+  <label>Вкладка</label>
+  <select id="fCat"></select>
+  <div class="line">
+    <button class="btn green" id="fSave">Сохранить</button>
+    <button class="btn grey" id="fLeft">← Раньше</button>
+    <button class="btn grey" id="fRight">Позже →</button>
+    <button class="btn red" id="fDel">Удалить</button>
+    <button class="btn grey" id="fCancel">Отмена</button>
+  </div>
+</div></div>
+
+<!-- ARASAAC -->
+<div class="modal" id="mAra"><div class="sheet">
+  <h2>Пиктограммы ARASAAC</h2>
+  <div class="line" style="margin-top:0">
+    <input type="text" id="aQ" placeholder="слово" style="flex:1 1 180px">
+    <select id="aL" style="width:auto"><option value="ru">Русский</option><option value="en">English</option><option value="es">Español</option></select>
+    <button class="btn" id="aGo">Найти</button>
+  </div>
+  <div id="aMsg" class="small"></div>
+  <div id="aRes"></div>
+  <div class="small">Нужен интернет (только в момент выбора, картинка потом сохраняется на устройстве). Пиктограммы: ARASAAC (arasaac.org), автор Sergio Palao, © Правительство Арагона, лицензия CC BY-NC-SA — только некоммерческое использование.</div>
+  <div class="line"><button class="btn grey" id="aClose">Закрыть</button></div>
+</div></div>
+
+<!-- настройки -->
+<div class="modal" id="mSet"><div class="sheet">
+  <h2>Настройки</h2>
+  <label>Размер иконок</label>
+  <select id="sTs"><option value="170">Крупные (100%)</option><option value="85">Средние</option><option value="65">Мелкие</option></select>
+  <label>Скорость речи: <span id="sRateV"></span></label>
+  <input type="range" id="sRate" min="0.5" max="1.3" step="0.1">
+  <label>Голос</label>
+  <select id="sVoice"></select>
+  <label>Высота голоса: <span id="sPitchV"></span></label>
+  <input type="range" id="sPitch" min="0.6" max="1.4" step="0.1">
+  <label>Громкость: <span id="sVolV"></span></label>
+  <input type="range" id="sVol" min="0.3" max="1" step="0.1">
+  <div class="line" style="margin-top:6px"><button class="btn" id="sTest">▶ Проверить голос</button></div>
+  <div class="small" id="sVoiceInfo"></div>
+  <div class="line"><button class="btn" id="sRec">🎙 Свой голос (записи фраз)</button></div>
+  <label class="chk"><input type="checkbox" id="sTap"> Озвучивать каждое слово при нажатии</label>
+  <label class="chk"><input type="checkbox" id="sAuto"> После «Сказать» начинать новую фразу сразу</label>
+  <label class="chk"><input type="checkbox" id="sLeft"> Кнопки «Сказать/Стереть» слева (для левой руки)</label>
+  <label class="chk"><input type="checkbox" id="sSort"> Сортировать плитки по частоте использования</label>
+  <div class="small">Если выключено — плитки стоят на своих местах: человеку проще запоминать, где что лежит. Частые слова всё равно видны во вкладке «Часто» и в строке подсказок.</div>
+  <label style="margin-top:16px">Автоподбор пиктограмм ARASAAC для всех слов без картинки</label>
+  <div class="line" style="margin-top:4px">
+    <select id="pL" style="width:auto"><option value="ru">Русский</option><option value="en">English</option><option value="es">Español</option></select>
+    <button class="btn" id="pGo">Подобрать</button>
+    <button class="btn grey" id="pStop">Стоп</button>
+    <button class="btn grey" id="pUndo">Убрать авто-картинки</button>
+  </div>
+  <div class="small" id="pMsg">Нужен интернет. Берётся первая найденная картинка; неудачные потом можно заменить вручную. Свои фото не трогаются.</div>
+  <div class="line">
+    <button class="btn" id="sExp">💾 Сохранить копию</button>
+    <button class="btn grey" id="sImp">📂 Загрузить копию</button>
+    <button class="btn red" id="sReset">Сбросить всё</button>
+  </div>
+  <div class="small" style="margin-top:12px">Пиктограммы ARASAAC (arasaac.org): автор Sergio Palao, © Правительство Арагона, лицензия CC BY-NC-SA 4.0. Использовать только в некоммерческих целях.</div>
+  <input type="file" id="sFile" accept="application/json,.json" hidden>
+  <div class="line"><button class="btn green" id="sClose">Закрыть</button></div>
+</div></div>
+
+<!-- крупный текст -->
+<div class="modal" id="mRec"><div class="sheet">
+  <h2>Свой голос</h2>
+  <div class="small">Запиши фразу голосом близкого. Когда программа будет её говорить, она проиграет запись вместо синтеза. Совпадает слово в слово.</div>
+  <label>Текст фразы</label><input type="text" id="rText">
+  <div class="line"><button class="btn red" id="rStart">● Запись</button><button class="btn" id="rStop" disabled>■ Стоп</button><button class="btn" id="rPlay">▶ Послушать</button><button class="btn green" id="rSave">Сохранить</button></div>
+  <div class="small" id="rMsg"></div>
+  <h3>Сохранённые</h3><div id="rList"></div>
+  <div class="line"><button class="btn grey" id="rClose">Закрыть</button></div>
+</div></div>
+<div class="modal" id="mMax"><div class="sheet">
+  <h2>Кому отправить в Макс?</h2>
+  <div id="mxPhrase" class="small" style="font-size:18px;color:#222;margin-bottom:6px"></div>
+  <div id="mxList"></div>
+  <div id="mxMsg" class="small" style="font-size:17px;color:#0a7a2f"></div>
+  <div class="line"><button class="btn" id="mxShare">📤 Другое приложение…</button></div>
+  <label>Добавить контакт — имя</label><input type="text" id="mxName" placeholder="Например: Андрей">
+  <label>Ссылка на его профиль в Max</label><input type="text" id="mxLink" placeholder="https://max.ru/u/…">
+  <div class="small">В Max у человека: Профиль → QR-код / «Поделиться ссылкой». Ссылку он присылает тебе, вставляешь сюда.</div>
+  <div class="line"><button class="btn green" id="mxAdd">Добавить</button><button class="btn grey" id="mxClose">Закрыть</button></div>
+</div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   ГРАММАТИКА
+   ===================================================================== */
+const lc=s=>String(s||'').toLowerCase();
+
+/* --- существительные (единственное число; для мн. числа и исключений — свои формы) --- */
+function declNoun(lab,g,an,c){
+  const st=lab.slice(0,-1),l=lab.slice(-1);
+  const vh=/[гкхжчшщ]$/,hc=/[жчшщц]$/;
+  if(l==='а')return{gen:st+(vh.test(st)?'и':'ы'),dat:st+'е',acc:st+'у',inst:st+(hc.test(st)?'ей':'ой'),prep:st+'е'}[c];
+  if(l==='я'){const ii=st.endsWith('и');return{gen:st+'и',dat:st+(ii?'и':'е'),acc:st+'ю',inst:st+'ей',prep:st+(ii?'и':'е')}[c];}
+  if(l==='ь'){
+    if(g==='f')return{gen:st+'и',dat:st+'и',acc:lab,inst:st+'ью',prep:st+'и'}[c];
+    return{gen:st+'я',dat:st+'ю',acc:an?st+'я':lab,inst:st+'ем',prep:st+'е'}[c];
+  }
+  if(l==='й')return{gen:st+'я',dat:st+'ю',acc:an?st+'я':lab,inst:st+'ем',prep:st+(st.endsWith('и')?'и':'е')}[c];
+  if(l==='о')return{gen:st+'а',dat:st+'у',acc:lab,inst:st+'ом',prep:st+'е'}[c];
+  if(l==='ё')return{gen:st+'я',dat:st+'ю',acc:lab,inst:st+'ём',prep:st+'е'}[c];
+  if(l==='е'&&/[жчшщц]$/.test(st))return{gen:st+'а',dat:st+'у',acc:lab,inst:st+'ем',prep:st+'е'}[c];
+  if(l==='е'){const ii=st.endsWith('и');return{gen:st+'я',dat:st+'ю',acc:lab,inst:st+'ем',prep:st+(ii?'и':'е')}[c];}
+  return{gen:lab+'а',dat:lab+'у',acc:an?lab+'а':lab,inst:lab+(hc.test(lab)?'ем':'ом'),prep:lab+'е'}[c];
+}
+function fleet(lab){const m=lab.match(/^(.*?)(о|е|ё)(к|ц)$/);if(!m)return lab;return m[1]+(/л$/.test(m[1])?'ь':'')+m[3];}
+function nounForms(it){
+  const g=it.gram||{},lab=lc(it.say||it.label),ov=(g.f||'').split(',').map(x=>x.trim()),o={};
+  const base=g.b?fleet(lab):lab;
+  ['gen','acc','dat','inst','prep'].forEach((c,i)=>{o[c]=ov[i]||((g.id||g.g==='p')?lab:declNoun(base,g.g||'m',!!g.an,c));});
+  if(g.b&&!ov[1]&&!g.an&&!g.id&&g.g!=='p')o.acc=lab;
+  if(g.u&&!ov[3]&&!g.id&&/[жчшщц]$/.test(base)&&(g.g||'m')==='m')o.inst=base+'ом';
+  return o;
+}
+const nounText=(it,c)=>c==='nom'?lc(it.say||it.label):nounForms(it)[c];
+
+/* --- прилагательные: -ый, -ой, -ий (кий/гий/хий и шипящие) --- */
+const CI={nom:0,gen:1,dat:2,acc:3,inst:4,prep:5};
+const ADJ={m:['ый','ого','ому','A','ым','ом'],f:['ая','ой','ой','ую','ой','ой'],n:['ое','ого','ому','ое','ым','ом'],p:['ые','ых','ым','A','ыми','ых']};
+function adjForm(lab,g,c,an){
+  const w=lc(lab);if(!/(ый|ой|ий)$/.test(w))return w;
+  if(/ний$/.test(w)){const S={m:['ий','его','ему','A','им','ем'],f:['яя','ей','ей','юю','ей','ей'],n:['ее','его','ему','ее','им','ем'],p:['ие','их','им','A','ими','их']};
+    const gi=S[g]?g:'m';let e=S[gi][CI[c]];if(e==='A')e=an?S[gi][1]:S[gi][0];return w.slice(0,-2)+e;}
+  const oy=w.endsWith('ой'),stem=w.slice(0,-2),last=stem.slice(-1);
+  const hush=/[жчшщ]/.test(last),vel=/[гкх]/.test(last);
+  const gi=ADJ[g]?g:'m',T=ADJ[gi];let e=T[CI[c]];
+  if(e==='A')e=an?T[1]:(gi==='m'?'ый':T[0]);
+  if(c==='nom'&&gi==='m'&&oy)e='ой';
+  if(vel||hush)e=e.replace(/ы/g,'и');
+  if(hush&&!oy)e=e.replace(/^о/,'е');
+  return stem+e;
+}
+
+/* --- местоимения (таблицы: им., род., дат., вин., твор., предл.; A = как род./им. по одушевлённости) --- */
+const PR={
+ 'мой':{m:['мой','моего','моему','A','моим','моём'],f:['моя','моей','моей','мою','моей','моей'],n:['моё','моего','моему','моё','моим','моём'],p:['мои','моих','моим','A','моими','моих']},
+ 'твой':{m:['твой','твоего','твоему','A','твоим','твоём'],f:['твоя','твоей','твоей','твою','твоей','твоей'],n:['твоё','твоего','твоему','твоё','твоим','твоём'],p:['твои','твоих','твоим','A','твоими','твоих']},
+ 'наш':{m:['наш','нашего','нашему','A','нашим','нашем'],f:['наша','нашей','нашей','нашу','нашей','нашей'],n:['наше','нашего','нашему','наше','нашим','нашем'],p:['наши','наших','нашим','A','нашими','наших']},
+ 'ваш':{m:['ваш','вашего','вашему','A','вашим','вашем'],f:['ваша','вашей','вашей','вашу','вашей','вашей'],n:['ваше','вашего','вашему','ваше','вашим','вашем'],p:['ваши','ваших','вашим','A','вашими','ваших']},
+ 'этот':{m:['этот','этого','этому','A','этим','этом'],f:['эта','этой','этой','эту','этой','этой'],n:['это','этого','этому','это','этим','этом'],p:['эти','этих','этим','A','этими','этих']},
+ 'тот':{m:['тот','того','тому','A','тем','том'],f:['та','той','той','ту','той','той'],n:['то','того','тому','то','тем','том'],p:['те','тех','тем','A','теми','тех']},
+ 'чей':{m:['чей','чьего','чьему','A','чьим','чьём'],f:['чья','чьей','чьей','чью','чьей','чьей'],n:['чьё','чьего','чьему','чьё','чьим','чьём'],p:['чьи','чьих','чьим','A','чьими','чьих']},
+ 'весь':{m:['весь','всего','всему','A','всем','всём'],f:['вся','всей','всей','всю','всей','всей'],n:['всё','всего','всему','всё','всем','всём'],p:['все','всех','всем','A','всеми','всех']}
+};
+function pronForm(k,g,c,an){
+  const t=PR[k];if(!t)return k;const row=t[t[g]?g:(g in t?g:'m')]||t.m;let e=row[CI[c]];
+  if(e==='A')e=an?row[1]:row[0];return e;
+}
+
+/* --- числительные: форма существительного после числа --- */
+const numClass=n=>{const a=n%100,b=n%10;if(b===1&&a!==11)return 1;if(b>=2&&b<=4&&(a<12||a>14))return 2;return 5;};
+const NUMTXT={1:'один/одна/одно/одни',2:'два/две/два/два'};
+
+/* =====================================================================
+   СБОРКА ФРАЗЫ
+   ===================================================================== */
+const typ=t=>(t.gram&&t.gram.t)||'word';
+function compose(ids){
+  const toks=ids.map(id=>byId(id)).filter(Boolean);
+  if(!toks.length)return'';
+  let q=false,ex=false;
+  toks.forEach(t=>{const g=t.gram||{};if(g.qm==='?')q=true;if(g.qm==='!')ex=true;});
+  const T=toks.filter(t=>typ(t)!=='mark');
+  if(!T.length)return q?'?':ex?'!':'';
+  /* падеж для каждого слова */
+  let cs='nom';const cases=[];
+  for(const t of T){cases.push(cs);const g=t.gram||{},ty=typ(t);
+    if(ty==='frame'&&g.cs)cs=g.cs;
+    else if(ty==='verb'&&g.gov)cs=g.gov;
+    else if(ty==='noun'&&g.qt)cs='gen';}
+  const transparent=t=>{const ty=typ(t);return ty==='adj'||ty==='pron'||ty==='num'||(ty==='word'&&t.gram&&t.gram.ad);};
+  const nextNoun=i=>{for(let j=i+1;j<T.length;j++){if(transparent(T[j]))continue;return typ(T[j])==='noun'?T[j]:null;}return null;};
+  const GI={m:0,f:1,n:2,p:3};
+  let numN=null;
+  const parts=[];
+  T.forEach((t,i)=>{
+    const g=t.gram||{},ty=typ(t),c=cases[i];let s;
+    if(ty==='noun'){
+      const useNum=numN!==null&&(c==='nom'||c==='acc')&&g.g!=='p';
+      if(useNum){const k=numClass(numN);
+        if(k===1)s=nounText(t,c);
+        else if(k===2)s=nounForms(t).gen;
+        else s=lc(g.gp||nounForms(t).gen);
+        numN=null;
+      }else s=nounText(t,c);
+      if(g.pn)s=s.replace(/(^|[\s-])([а-яёa-z])/g,(m,a,b)=>a+b.toUpperCase());
+    }else if(ty==='adj'){
+      const nn=nextNoun(i);s=adjForm(g.k||t.label,nn?(nn.gram.g||'m'):'m',c,nn?!!nn.gram.an:false);
+    }else if(ty==='pron'){
+      const nn=nextNoun(i);
+      s=g.fix?lc(t.label):pronForm(g.k||lc(t.label),nn?(nn.gram.g||'m'):'m',c,nn?!!nn.gram.an:false);
+    }else if(ty==='num'){
+      const nn=nextNoun(i),tx=NUMTXT[g.n];
+      if(tx){const a=tx.split('/');s=a[nn?(GI[nn.gram.g]??0):0];}else s=lc(t.say||t.label);
+      if(g.n===1&&c==='acc'&&nn&&nn.gram.g==='f')s='одну';
+      numN=g.n;
+    }else if(ty==='verb'){s=lc(t.say||t.label);
+    }else if(ty==='frame'){
+      s=g.tx||lc(t.label);
+      if(s.includes('{}')){
+        let nn=nextNoun(i),viaNum=false;
+        for(let j=i+1;j<T.length;j++){if(typ(T[j])==='num'){if(numClass(T[j].gram.n)!==1)viaNum=true;break;}if(!transparent(T[j]))break;}
+        const a=(g.ag||'').split('/');s=s.replace('{}',a[(nn&&!viaNum)?(GI[nn.gram.g]??2):2]||'');}
+    }else s=lc(t.say||t.label);
+    parts.push({s,ty,g});
+  });
+  const out=[];
+  parts.forEach((p,i)=>{
+    let s=p.s;const last=i===parts.length-1;
+    if(p.g.pl){
+      if(i>0&&out.length&&!/,$/.test(out[out.length-1]))out[out.length-1]+=',';
+      s='пожалуйста';if(!last)s+=',';
+    }else if(!last){
+      const nx=parts[i+1];
+      if(p.g.ld==='1'||(p.g.ld==='auto'&&nx.ty!=='noun'&&nx.ty!=='adj'&&nx.ty!=='pron'&&nx.ty!=='num'))s+=',';
+    }
+    out.push(s);
+  });
+  let txt=out.join(' ').replace(/\s+/g,' ').replace(/,+$/,'').trim();
+  txt=txt.charAt(0).toUpperCase()+txt.slice(1);
+  return txt+(q?'?':ex?'!':'.');
+}
+
+/* =====================================================================
+   НАЧАЛЬНЫЙ СЛОВАРЬ
+   ===================================================================== */
+const n=(e,l,g,o={})=>({e,l,gram:{t:'noun',g,...o}});
+const v=(e,l,gov)=>({e,l,gram:{t:'verb',gov}});
+const a=(e,l,o={})=>({e,l,gram:{t:'adj',...o}});
+const pr=(e,l,o={})=>({e,l,gram:{t:'pron',...o}});
+const fr=(e,l,tx,cs,o={})=>({e,l,gram:{t:'frame',tx,cs,...o}});
+const w=(e,l,say,o={})=>({e,l,say:say||'',gram:{t:'word',...o}});
+const mk=(e,l,qm)=>({e,l,gram:{t:'mark',qm}});
+const num=(e,l,k,say)=>({e,l,say:say||'',gram:{t:'num',n:k}});
+
+const ORD=['первого','второго','третьего','четвёртого','пятого','шестого','седьмого','восьмого','девятого','десятого','одиннадцатого','двенадцатого','тринадцатого','четырнадцатого','пятнадцатого','шестнадцатого','семнадцатого','восемнадцатого','девятнадцатого','двадцатого'];
+const dateSay=d=>d<=20?ORD[d-1]:d<30?'двадцать '+ORD[d-21]:d===30?'тридцатого':'тридцать первого';
+const MONTHS=[['Январь','января'],['Февраль','февраля'],['Март','марта'],['Апрель','апреля'],['Май','мая'],['Июнь','июня'],['Июль','июля'],['Август','августа'],['Сентябрь','сентября'],['Октябрь','октября'],['Ноябрь','ноября'],['Декабрь','декабря']];
+
+const SEED_CATS=[
+ ['start','▶️','Начать'],['quest','❓','Вопросы'],['ans','💬','Ответы'],['pron','👤','Я / мой'],['people','👪','Люди'],
+ ['med','🩺','Врач'],['food','🍲','Еда'],['drink','🥛','Питьё'],['rest','🍽️','Ресторан'],['adj','🔥','Какой'],
+ ['act','🏃','Действия'],['feel','🙂','Самочувствие'],['pain','🤕','Болит'],['things','📺','Вещи'],['city','🧭','Город'],
+ ['when','🕒','Время'],['date','📅','Даты'],['num','🔢','Числа']
+];
+
+const PACK={
+start:[
+ fr('🙋','Я хочу','я хочу','acc'),fr('🙅','Я не хочу','я не хочу','gen'),
+ fr('🤲','Мне нужен…','мне {}','nom',{ag:'нужен/нужна/нужно/нужны'}),
+ fr('👍','Мне нравится…','мне {}','nom',{ag:'нравится/нравится/нравится/нравятся'}),
+ fr('🍴','Я буду','я буду','acc'),fr('❤️','Я люблю','я люблю','acc'),
+ fr('✅','Я готов','я готов','acc'),fr('💪','Я могу','я могу','acc'),fr('🚫','Я не могу','я не могу','acc'),
+ fr('🤲','Дайте','дайте','acc'),fr('🍽️','Принесите','принесите','acc'),fr('👉','Покажите','покажите','acc'),
+ fr('📢','Позовите','позовите','acc'),fr('🚑','Вызовите','вызовите','acc'),fr('📞','Позвоните','позвоните','dat'),
+ fr('🤕','У меня болит…','у меня {}','nom',{ag:'болит/болит/болит/болят'}),
+ fr('🙋','У меня','у меня','nom'),fr('🫵','У тебя','у тебя','nom'),fr('🫵','У вас','у вас','nom'),fr('✔️','Есть','есть','nom'),
+ fr('👆','Это','это','nom'),
+ fr('➡️','Я иду в','я иду в','acc'),fr('📍','Я в','я в','prep'),fr('📍','Я на','я на','prep'),
+ fr('📍','В (где)','в','prep'),fr('➡️','В (куда)','в','acc'),fr('📍','На (где)','на','prep'),fr('➡️','На (куда)','на','acc'),
+ fr('🥄','С','с','inst'),fr('🚫','Без','без','gen'),fr('🎁','Для','для','gen'),fr('🏁','До','до','gen'),
+ fr('🚶','К','к','dat'),fr('⬅️','Из','из','gen'),
+ fr('🔢','Ещё','ещё','gen'),fr('➕','Немного','немного','gen'),fr('➕','Много','много','gen'),
+ fr('🚗','Я поеду','я поеду','acc'),fr('🚶','Я пойду','я пойду','acc'),fr('🏠','Я приеду','я приеду','acc'),fr('🏠','Я вернусь','я вернусь','acc'),
+ fr('📞','Я позвоню','я позвоню','dat'),fr('🛒','Я куплю','я куплю','acc'),fr('💳','Я заплачу','я заплачу','acc'),
+ fr('🚗','Я ездил','я ездил','acc'),fr('🚶','Я ходил','я ходил','acc'),fr('📍','Я был','я был','acc'),fr('🛒','Я купил','я купил','acc')
+],
+quest:[
+ fr('🕒','Когда…?','когда','nom',{qm:'?'}),
+ fr('📅','Какого числа…?','какого числа','nom',{qm:'?'}),
+ fr('⏰','Во сколько…?','во сколько','nom',{qm:'?'}),
+ fr('📍','Где…?','где','nom',{qm:'?'}),
+ fr('➡️','Куда…?','куда','nom',{qm:'?'}),
+ fr('⬅️','Откуда…?','откуда','nom',{qm:'?'}),
+ fr('🤔','Почему…?','почему','nom',{qm:'?'}),
+ fr('🎯','Зачем…?','зачем','nom',{qm:'?'}),
+ fr('🧑','Кто…?','кто','nom',{qm:'?'}),
+ fr('❔','Что…?','что','nom',{qm:'?'}),
+ fr('🛠️','Как…?','как','nom',{qm:'?'}),
+ fr('🔢','Сколько…?','сколько','gen',{qm:'?'}),
+ fr('💰','Сколько стоит…?','сколько {}','nom',{ag:'стоит/стоит/стоит/стоят',qm:'?'}),
+ fr('🧭','Как добраться до…?','как добраться до','gen',{qm:'?'}),
+ fr('🧭','Как пройти в…?','как пройти в','acc',{qm:'?'}),
+ fr('🧭','Как пройти к…?','как пройти к','dat',{qm:'?'}),
+ fr('🙏','Можно…?','можно','acc',{qm:'?'}),
+ fr('🚪','Когда придёт…?','когда {}','nom',{ag:'придёт/придёт/придёт/придут',qm:'?'}),
+ fr('🗓️','Когда будет…?','когда {}','nom',{ag:'будет/будет/будет/будут',qm:'?'}),
+ fr('📍','Где будет…?','где {}','nom',{ag:'будет/будет/будет/будут',qm:'?'}),
+ a('❓','Какой…?',{qm:'?',k:'какой'}),pr('❓','Чей…?',{k:'чей',qm:'?'}),
+ mk('❓','Вопрос ?','?'),mk('❗','Восклицание !','!'),
+ w('🤝','Как дела','',{qm:'?'}),w('😟','Что случилось','',{qm:'?'}),w('🧑‍🤝‍🧑','Как вас зовут','',{qm:'?'}),
+ w('🕒','Сколько времени','',{qm:'?'}),w('🕒','Который час','',{qm:'?'}),w('👆','Что это','',{qm:'?'}),w('🗺️','Где мы','',{qm:'?'}),w('🆕','Что нового','',{qm:'?'})
+],
+ans:[
+ w('✅','Да','',{ld:'1'}),fr('❌','Нет','нет','gen',{ld:'auto'}),w('👌','Конечно','',{ld:'1'}),w('⏳','Пока'),
+ w('🙏','Спасибо','',{ld:'1'}),w('🙇','Пожалуйста','',{pl:1}),w('🙇','Простите','',{ld:'1'}),w('🙇','Извините','',{ld:'1'}),
+ w('👋','Здравствуйте','',{ld:'1'}),w('👋','Привет','',{ld:'1'}),w('👋','До свидания'),
+ w('🤷','Не знаю'),w('🤷','Не понимаю'),w('🧠','Понимаю'),w('😊','Хорошо'),w('😞','Плохо'),w('😀','Отлично'),
+ w('🆘','Помогите','',{qm:'!'}),w('🔁','Повторите'),w('🐢','Помедленнее'),w('✋','Подождите'),
+ w('👍','Согласен'),w('👎','Не согласен'),w('🤔','Может быть'),w('🗺️','Покажите на карте')
+],
+pron:[
+ w('🧑','Я'),w('👉','Ты'),w('🧑‍🤝‍🧑','Вы'),w('👥','Мы'),w('👨','Он'),w('👩','Она'),w('👥','Они'),
+ w('🙋','Мне'),w('🙋','Меня'),w('👥','Нам'),w('🧑‍🤝‍🧑','Вам'),w('🧑‍🤝‍🧑','Вас'),w('👨','Ему'),w('👩','Ей'),w('🫵','Тебе'),
+ pr('🙋','Мой',{k:'мой'}),pr('👉','Твой',{k:'твой'}),pr('👥','Наш',{k:'наш'}),pr('🧑‍🤝‍🧑','Ваш',{k:'ваш'}),
+ pr('👨','Его',{fix:1}),pr('👩','Её',{fix:1}),pr('👥','Их',{fix:1}),pr('👆','Этот',{k:'этот'}),pr('👈','Тот',{k:'тот'}),pr('🌐','Весь',{k:'весь'})
+],
+people:[
+ n('👵','Жена','f',{an:1}),n('👨','Муж','m',{an:1}),n('👩','Дочь','f',{an:1,f:'дочери,дочь,дочери,дочерью,дочери'}),
+ n('👨','Сын','m',{an:1}),n('🧒','Внук','m',{an:1}),n('👧','Внучка','f',{an:1}),n('👨','Брат','m',{an:1}),n('👩','Сестра','f',{an:1}),
+ n('👩','Мама','f',{an:1}),n('👨','Папа','m',{an:1}),n('👰','Невестка','f',{an:1}),n('🤵','Зять','m',{an:1}),
+ n('🧑‍🤝‍🧑','Друг','m',{an:1}),n('🏠','Сосед','m',{an:1}),
+ n('🧑‍⚕️','Врач','m',{an:1,f:'врача,врача,врачу,врачом,враче'}),n('👩‍⚕️','Медсестра','f',{an:1}),n('🧑‍🍳','Официант','m',{an:1})
+],
+med:[
+ n('💆','Лечение','n'),n('🏃','Реабилитация','f'),n('💆','Массаж','m'),n('📆','Курс','m'),n('🕒','Сеанс','m'),n('📄','Выписка','f'),
+ n('🩺','Приём','m',{f:'приёма,приём,приёму,приёмом,приёме'}),n('💉','Укол','m'),n('🧪','Анализ','m'),n('💊','Процедура','f'),
+ n('🩻','Обследование','n'),n('📋','Рецепт','m'),n('💧','Капельница','f'),n('🌡️','Температура','f'),n('🩸','Давление','n',{f:'давления,давление,давлению,давлением,давлении'}),
+ n('🚑','Скорая помощь','f',{f:'скорой помощи,скорую помощь,скорой помощи,скорой помощью,скорой помощи'}),n('🆘','Помощь','f'),
+ n('💊','Лекарство','n'),n('💊','Таблетка','f',{gp:'таблеток'}),n('💊','Таблетки','p',{f:'таблеток,таблетки,таблеткам,таблетками,таблетках'})
+],
+food:[
+ n('🍞','Хлеб','m'),n('🍲','Суп','m'),n('🍲','Борщ','m',{f:'борща,борщ,борщу,борщом,борще'}),n('🥣','Каша','f'),n('🍖','Мясо','n'),n('🐟','Рыба','f'),
+ n('🍗','Курица','f',{an:1}),n('🥚','Яйцо','n',{gp:'яиц'}),n('🥔','Картошка','f'),n('🥕','Овощи','p',{f:'овощей,овощи,овощам,овощами,овощах'}),
+ n('🍎','Фрукты','p',{f:'фруктов,фрукты,фруктам,фруктами,фруктах'}),n('🥗','Салат','m'),n('🧀','Сыр','m'),n('🥛','Творог','m'),n('🧈','Масло','n'),
+ n('🍚','Рис','m'),n('🍝','Макароны','p',{f:'макарон,макароны,макаронам,макаронами,макаронах'}),n('🥟','Пельмени','p',{f:'пельменей,пельмени,пельменям,пельменями,пельменях'}),
+ n('🍖','Котлета','f',{gp:'котлет'}),n('🍛','Гарнир','m'),n('🍰','Десерт','m'),n('🍨','Мороженое','n',{f:'мороженого,мороженое,мороженому,мороженым,мороженом'}),
+ n('🎂','Торт','m'),n('🍪','Печенье','n',{f:'печенья,печенье,печенью,печеньем,печенье'}),n('🍬','Конфета','f',{gp:'конфет'}),
+ n('🍎','Яблоко','n'),n('🍌','Банан','m'),n('🍊','Апельсин','m'),n('🥒','Огурец','m',{f:'огурца,огурец,огурцу,огурцом,огурце'}),n('🍅','Помидор','m'),
+ n('🍯','Мёд','m'),n('🍋','Лимон','m'),n('🌅','Завтрак','m'),n('☀️','Обед','m'),n('🌆','Ужин','m'),n('🍽️','Блюдо','n'),
+ n('🥪','Бутерброд','m'),n('🍳','Омлет','m'),n('🌭','Колбаса','f'),n('🌭','Сосиски','p',{f:'сосисок,сосиски,сосискам,сосисками,сосисках'}),
+ n('🥛','Йогурт','m'),n('🥛','Кефир','m'),n('🍲','Бульон','m'),n('🧂','Соль','f'),n('🍬','Сахар','m'),n('🌶️','Перец','m',{f:'перца,перец,перцу,перцем,перце'}),n('🥐','Закуска','f')
+],
+drink:[
+ n('💧','Вода','f'),n('🍵','Чай','m'),n('☕','Кофе','m',{id:1}),n('🥛','Молоко','n'),n('🧃','Сок','m'),n('🍹','Компот','m'),n('🥤','Лимонад','m'),n('🍫','Какао','n',{id:1})
+],
+rest:[
+ n('📜','Меню','n',{id:1}),n('🧾','Счёт','m'),n('📝','Заказ','m'),n('🪑','Стол','m'),n('🪑','Столик','m'),
+ n('🧻','Салфетка','f'),n('🍴','Вилка','f'),n('🥄','Ложка','f',{qt:1,gp:'ложек'}),n('🔪','Нож','m',{f:'ножа,нож,ножу,ножом,ноже'}),
+ n('🍽️','Тарелка','f',{qt:1,gp:'тарелок'}),n('🥛','Стакан','m',{qt:1,gp:'стаканов'}),n('☕','Чашка','f',{qt:1,gp:'чашек'}),n('🍺','Кружка','f',{qt:1,gp:'кружек'}),
+ n('🍾','Бутылка','f',{qt:1,gp:'бутылок'}),n('🍰','Кусок','m',{qt:1,f:'куска,кусок,куску,куском,куске',gp:'кусков'}),n('🍛','Порция','f',{qt:1,gp:'порций'}),
+ n('🧊','Лёд','m',{f:'льда,лёд,льду,льдом,льде'}),n('🥤','Соломинка','f'),n('💶','Чаевые','p',{f:'чаевых,чаевые,чаевым,чаевыми,чаевых'}),
+ n('💱','Сдача','f'),n('💳','Карта','f'),n('💵','Наличные','p',{f:'наличных,наличные,наличным,наличными,наличных'}),
+ n('⏳','Минутка','f',{gp:'минуток'}),n('🕒','Время','n',{f:'времени,время,времени,временем,времени'}),n('📍','Место','n')
+],
+adj:[
+ a('🔥','Горячий'),a('🧊','Холодный'),a('♨️','Тёплый'),a('🍬','Сладкий'),a('🧂','Солёный'),a('🌿','Свежий'),a('😋','Вкусный'),
+ a('🐘','Большой'),a('🐭','Маленький'),a('👍','Хороший'),a('👎','Плохой'),a('🆕','Новый'),a('📜','Старый'),a('🆓','Свободный'),
+ a('💛','Любимый'),a('🔈','Громкий'),a('🔇','Тихий')
+],
+act:[
+ v('👀','Посмотреть','acc'),v('📝','Заказать','acc'),v('💳','Оплатить','acc'),v('📦','Принести','acc'),v('🥤','Выпить','acc'),v('🍵','Попить','acc'),
+ v('🍽️','Поесть','acc'),v('🛒','Купить','acc'),v('✋','Взять','acc'),v('🚪','Открыть','acc'),v('🔒','Закрыть','acc'),v('💡','Включить','acc'),
+ v('🔌','Выключить','acc'),v('📞','Позвонить','dat'),v('🤝','Помочь','dat'),v('⏳','Подождать','acc'),v('🚶','Пойти'),v('🚶','Идти'),v('🚗','Ехать'),
+ v('🚗','Поехать'),v('🪑','Сесть'),v('🧍','Встать'),v('🛏️','Лечь'),v('😴','Отдохнуть'),v('😴','Поспать'),v('🌳','Погулять'),
+ v('📖','Читать','acc'),v('📺','Смотреть','acc'),v('🗣️','Поговорить'),v('👂','Послушать','acc'),v('✍️','Написать','acc'),v('🔍','Найти','acc'),
+ v('🔁','Повторить','acc'),v('🚿','Помыться'),v('🏠','Вернуться'),v('💊','Принять','acc'),v('🧠','Понять','acc'),v('🛠️','Делать','acc'),v('🚑','Вызвать','acc'),v('📦','Отдать','acc')
+],
+feel:[
+ w('😊','Мне хорошо'),w('😞','Мне плохо'),w('😣','Мне больно'),w('🥶','Мне холодно'),w('🥵','Мне жарко'),w('😮‍💨','Мне душно'),
+ w('😨','Мне страшно'),w('😢','Мне грустно'),w('🤢','Меня тошнит'),w('😵‍💫','У меня кружится голова'),w('🥱','Я устал'),
+ w('🍽️','Я голоден'),w('🥤','Я хочу пить'),w('😴','Я хочу спать'),w('🚽','Мне нужно в туалет'),w('🫥','У меня слабость'),w('😤','Мне нечем дышать')
+],
+pain:[
+ n('🗣️','Голова','f'),n('😮','Горло','n'),n('🫁','Грудь','f'),n('❤️','Сердце','n',{f:'сердца,сердце,сердцу,сердцем,сердце'}),n('🤰','Живот','m'),
+ n('🔙','Спина','f'),n('💪','Рука','f'),n('🦵','Нога','f'),n('👁️','Глаз','m',{f:'глаза,глаз,глазу,глазом,глазе'}),n('👂','Ухо','n',{f:'уха,ухо,уху,ухом,ухе'}),
+ n('🦷','Зуб','m'),n('🦴','Плечо','n'),n('🦵','Колено','n'),n('🧣','Шея','f'),n('🫃','Желудок','m',{f:'желудка,желудок,желудку,желудком,желудке'}),
+ n('🖐️','Пальцы','p',{f:'пальцев,пальцы,пальцам,пальцами,пальцах'})
+],
+things:[
+ n('📺','Телевизор','m'),n('📱','Телефон','m'),n('👓','Очки','p',{f:'очков,очки,очкам,очками,очках'}),n('🛌','Одеяло','n'),n('🛏️','Подушка','f'),
+ n('🪟','Окно','n'),n('🚪','Дверь','f'),n('💡','Лампа','f'),n('🎛️','Пульт','m'),n('⌚','Часы','p',{f:'часов,часы,часам,часами,часах'}),
+ n('📰','Газета','f'),n('📚','Книга','f'),n('🛏️','Кровать','f'),n('🛋️','Кресло','n'),n('🪑','Стул','m'),n('🖊️','Ручка','f'),n('📄','Бумага','f'),
+ n('🔑','Ключи','p',{f:'ключей,ключи,ключам,ключами,ключах'}),n('💵','Деньги','p',{f:'денег,деньги,деньгам,деньгами,деньгах'}),
+ n('👜','Сумка','f'),n('🦯','Трость','f'),n('🔌','Зарядка','f'),n('📱','Планшет','m'),n('👛','Кошелёк','m',{f:'кошелька,кошелёк,кошельку,кошельком,кошельке'})
+],
+city:[
+ n('🚉','Вокзал','m'),n('🚏','Остановка','f'),n('💊','Аптека','f'),n('🛒','Магазин','m'),n('🏦','Банк','m'),n('🏥','Поликлиника','f'),n('🏥','Больница','f'),
+ n('🚽','Туалет','m'),n('🏠','Дом','m'),n('🌳','Двор','m'),n('🛣️','Улица','f'),n('🌳','Парк','m'),n('📮','Почта','f'),n('☕','Кафе','n',{id:1}),
+ n('🍽️','Ресторан','m'),n('🚕','Такси','n',{id:1}),n('🚌','Автобус','m'),n('🚇','Метро','n',{id:1}),n('🛗','Лифт','m'),n('🚪','Подъезд','m'),
+ n('🏢','Квартира','f'),n('🗺️','Карта','f'),
+ n('🏖️','Санаторий','m'),n('🌴','Курорт','m'),n('🏡','Дача','f'),n('🏘️','Деревня','f'),n('🌊','Море','n'),n('🏊','Бассейн','m'),n('🧳','Поездка','f'),
+ w('⬅️','Налево','',{ad:1}),w('➡️','Направо','',{ad:1}),w('⬆️','Прямо','',{ad:1}),w('🛣️','Далеко','',{ad:1}),w('📍','Близко','',{ad:1}),w('📍','Здесь','',{ad:1}),w('📍','Там','',{ad:1})
+],
+when:[
+ fr('🕒','Когда…?','когда','nom',{qm:'?'}),fr('⏭️','Через','через','acc'),w('⏮️','Назад','',{ad:1}),
+ a('⏭️','Следующий'),a('⏮️','Прошлый'),a('📍','Ближайший'),a('🔁','Каждый'),
+ w('📅','Послезавтра','',{ad:1}),w('📅','Позавчера','',{ad:1}),
+ w('🌅','Утром','',{ad:1}),w('☀️','Днём','',{ad:1}),w('🌆','Вечером','',{ad:1}),w('🌙','Ночью','',{ad:1}),
+ w('📅','Сегодня','',{ad:1}),w('➡️','Завтра','',{ad:1}),w('⬅️','Вчера','',{ad:1}),w('⏱️','Сейчас','',{ad:1}),w('🔜','Потом','',{ad:1}),
+ w('🕐','Позже','',{ad:1}),w('🔜','Скоро','',{ad:1}),w('♾️','Всегда','',{ad:1}),w('🚫','Никогда','',{ad:1}),
+ n('🌅','Утро','n',{f:'утра,утро,утру,утром,утре'}),n('🌆','Вечер','m',{f:'вечера,вечер,вечеру,вечером,вечере'}),n('🌙','Ночь','f'),
+ n('☀️','День','m',{f:'дня,день,дню,днём,дне',gp:'дней'}),n('⏱️','Час','m',{f:'часа,час,часу,часом,часе',gp:'часов'}),n('⏱️','Минута','f',{gp:'минут'}),
+ n('📅','Неделя','f',{gp:'недель'}),n('📅','Число','n'),n('📅','Месяц','m',{gp:'месяцев'}),n('📅','Год','m',{f:'года,год,году,годом,годе',gp:'лет'}),
+ n('🔁','Раз','m',{f:'раза,раз,разу,разом,разе',gp:'раз'}),
+ n('📅','Понедельник','m'),n('📅','Вторник','m'),n('📅','Среда','f'),n('📅','Четверг','m',{f:'четверга,четверг,четвергу,четвергом,четверге'}),
+ n('📅','Пятница','f'),n('📅','Суббота','f'),n('📅','Воскресенье','n')
+],
+date:[
+ ...Array.from({length:31},(_,i)=>w('📅',String(i+1),dateSay(i+1))),
+ ...MONTHS.map(([l,s])=>w('🗓️',l,s))
+],
+num:[
+ num('1️⃣','Один',1),num('2️⃣','Два',2),num('3️⃣','Три',3),num('4️⃣','Четыре',4),num('5️⃣','Пять',5),num('6️⃣','Шесть',6),num('7️⃣','Семь',7),
+ num('8️⃣','Восемь',8),num('9️⃣','Девять',9),num('🔟','Десять',10),num('🔢','Одиннадцать',11),num('🔢','Двенадцать',12),num('🔢','Пятнадцать',15),
+ num('🔢','Двадцать',20),num('🔢','Тридцать',30),num('🔢','Сорок',40),num('🔢','Пятьдесят',50),num('🔢','Четырнадцать',14),num('🔢','Восемнадцать',18),num('🔢','Шестьдесят',60),num('🔢','Семьдесят',70),num('🔢','Восемьдесят',80),num('🔢','Девяносто',90),num('💯','Сто',100),
+ w('➗','Половина'),w('➗','Полчаса')
+]
+};
+
+/* прежние (до грамматики) стандартные плитки — их мы заменяем, свои не трогаем */
+const LEGACY={
+ people:'🧑 Я|👉 Ты|👵 Жена|👩 Дочь|👨 Сын|🧒 Внук|👧 Внучка|🧑‍⚕️ Врач|👩‍⚕️ Медсестра|🧑‍🤝‍🧑 Друг|🏠 Сосед',
+ want:'👍 Хочу|🚫 Не хочу|🍽️ Есть|🥤 Пить|😴 Спать|🚽 В туалет|🚿 Умыться|🥶 Холодно|🥵 Жарко|🔊 Громко|🔇 Тихо|💡 Свет|📞 Позвонить|🚶 Гулять',
+ feel:'😊 Хорошо|😞 Плохо|😣 Больно|🥱 Устал|😨 Страшно|😢 Грустно|🤢 Тошнит|😵‍💫 Кружится голова|🫥 Слабость|😤 Нечем дышать',
+ pain:'🗣️ Голова|😮 Горло|🫁 Грудь|❤️ Сердце|🤰 Живот|🔙 Спина|💪 Рука|🦵 Нога|👁️ Глаз|👂 Ухо|🦷 Зубы',
+ food:'🍞 Хлеб|🍲 Суп|🥣 Каша|🍖 Мясо|🐟 Рыба|🥚 Яйцо|🥔 Картошка|🥕 Овощи|🍎 Фрукты|🍎 Яблоко|🍌 Банан|🧀 Сыр|🥛 Творог|🍪 Печенье|🍬 Конфета',
+ drink:'💧 Вода|🍵 Чай|☕ Кофе|🥛 Молоко|🧃 Сок|🍹 Компот',
+ act:'🤲 Дай|📦 Принеси|🚪 Открой|🔒 Закрой|🤝 Помоги|🚶 Идти|🪑 Сидеть|🛏️ Лежать|📺 Смотреть|📖 Читать|📱 Позвони',
+ things:'📺 Телевизор|📱 Телефон|👓 Очки|💊 Лекарство|🛌 Одеяло|🛏️ Подушка|🪟 Окно|🚪 Дверь|💡 Лампа|🎛️ Пульт|⌚ Часы|📰 Газета|📚 Книга|🛏️ Кровать|🛋️ Кресло',
+ when:'📅 Сегодня|➡️ Завтра|⬅️ Вчера|🌅 Утро|🌆 Вечер|🌙 Ночь|⏱️ Сейчас|🔜 Потом|🏠 Дом|🌳 Двор|🏥 Больница|🛒 Магазин',
+ city:'🙇 Простите|🧭 Как добраться|🚉 Вокзал|🚏 Остановка|💊 Аптека|🛒 Магазин|🏦 Банк|🏥 Поликлиника|🚽 Туалет|⬅️ Налево|➡️ Направо|⬆️ Прямо|🛣️ Далеко|📍 Близко|🔁 Повторите|🐢 Помедленнее|🗺️ Покажите на карте'
+};
+const DEFAULTS={rate:0.9,ts:85,icv:2,pitch:1,vol:1,voice:'',tap:false,auto:true,left:false,sort:false};
+/* ===== СЛОВАРЬ ===== */
+/* =====================================================================
+   СЛОВАРЬ (~2000 слов). Формат слова:  слово[+падеж глагола][/теги][=формы через |][^эмодзи]
+   теги: ж м с — род (иначе по окончанию), о — живое, н — не изменяется, п — только мн.ч.,
+         б — беглая гласная (кусок→куска), у — ударное окончание (врач→врачом), и — имя собственное
+   глаголы: +в вин.  +д дат.  +р род.  +т твор.
+   ===================================================================== */
+const DICT=[
+{id:'ppl',name:'Люди и семья',e:'👥',N:`
+человек/о=человека|человека|человеку|человеком|человеке^🧑, люди/п=людей|людей|людям|людьми|людях^👥, мужчина/мо^👨, женщина/о^👩,
+ребёнок/о=ребёнка|ребёнка|ребёнку|ребёнком|ребёнке^🧒, дети/п=детей|детей|детям|детьми|детях^👶, малыш/оу^👶, мальчик/о^👦, девочка/о^👧,
+девушка/о^👩, парень/о, юноша/мо, старик/о^👴, старушка/о^👵, бабушка/о^👵, дедушка/мо^👴, родители/п=родителей|родителей|родителям|родителями|родителях^👪,
+мать/о=матери|мать|матери|матерью|матери^👩, отец/обу^👨, тётя/о, дядя/мо, племянник/о, племянница/о, свекровь/ож=свекрови|свекровь|свекрови|свекровью|свекрови,
+тёща/о, тесть/о, жених/о, невеста/о, супруг/о, супруга/о, вдова/о, подруга/о, приятель/о, соседка/о, гость/о, хозяин/о, хозяйка/о,
+учитель/о, учительница/о, ученик/о, ученица/о, студент/о, школьник/о, воспитатель/о, доктор/о^🧑‍⚕️, пациент/о, продавец/обу, кассир/о, повар/о^🧑‍🍳,
+водитель/о, шофёр/о, начальник/о, директор/о, сотрудник/о, коллега/мо, работник/о, строитель/о^👷, шахтёр/о, фермер/о, художник/о^🧑‍🎨,
+музыкант/о, певец/обу, артист/о, писатель/о, поэт/о, священник/о, монах/о, солдат/о, офицер/о, герой/о, иностранец/обу, турист/о, пассажир/о,
+покупатель/о, дочка/о, семья=семьи|семью|семье|семьёй|семье^👪, фамилия, имя/с=имени|имя|имени|именем|имени, прозвище/с, возлюбленный/о=возлюбленного|возлюбленного|возлюбленному|возлюбленным|возлюбленном,
+сват/о, крёстный skip
+`},
+{id:'body',name:'Тело',e:'🫀',N:`
+тело/с, лицо/с, лоб=лба|лоб|лбу|лбом|лбе, нос^👃, рот=рта|рот|рту|ртом|рте^👄, губа, язык^👅, щека, подбородок/б, шея, плечо, локоть=локтя|локоть|локтю|локтем|локте,
+запястье/с, ладонь/ж, палец/б^☝️, ноготь=ногтя|ноготь|ногтю|ногтем|ногте, бок, ступня, пятка, стопа, бедро, кожа, кость/ж, мышца, сустав, кровь/ж,
+печень/ж, почка, мозг, нерв, вена, волосы/п=волос|волосы|волосам|волосами|волосах, борода, бровь/ж, ресница, голос, дыхание/с, слух, зрение/с, вкус,
+запах, фигура, рост, висок/б, затылок/б, макушка, ухо, глаз=глаза|глаз|глазу|глазом|глазе^👁️, зуб/ , кулак/у, жест, поза, осанка, походка,
+рёбра/п=рёбер|рёбра|рёбрам|рёбрами|рёбрах, позвоночник, лопатка, поясница, живот, грудь/ж, сердце, горло
+`,V:`
+видеть+в, слышать+в, нюхать+в, трогать+в, касаться+р, кивать, махать+т, моргать, зевать, глотать+в, жевать+в, кусать+в, чесать+в, дышать, чихать, кашлять,
+потянуться, вздохнуть, согнуть+в, разогнуть+в, поднять exist
+`},
+{id:'health',name:'Здоровье',e:'🩺',N:`
+болезнь/ж, боль/ж, кашель=кашля|кашель|кашлю|кашлем|кашле, насморк, простуда, грипп, головокружение/с, слабость/ж, усталость/ж, аллергия, пульс, инсульт, инфаркт,
+операция, рана, ушиб, перелом, синяк/у, ожог, отёк, сыпь/ж, зуд, тошнота, рвота, понос, капли/п=капель|капли|каплям|каплями|каплях, мазь/ж, пластырь/м,
+бинт, вата, градусник, тонометр, костыль/м^🦯, коляска, протез, палата, кабинет, рентген, снимок, диагноз, диета, режим, осмотр, назначение/с, справка,
+сон=сна|сон|сну|сном|сне^😴, отдых, покой, лекарства/п=лекарств|лекарства|лекарствам|лекарствами|лекарствах^💊, витамины/п=витаминов|витамины|витаминам|витаминами|витаминах,
+иммунитет, инвалид/о, больница, хирург/о, терапевт/о, невролог/о, окулист/о, стоматолог/о, кардиолог/о, медбрат/о, санитарка/о, сиделка/о, ухаживающий skip,
+память/ж, зрение/с, слух, речь/ж, афазия, реабилитация, логопед/о, упражнение/с, гимнастика, тренажёр, ходунки/п=ходунков|ходунки|ходункам|ходунками|ходунках, кресло-коляска skip,
+самочувствие/с, состояние/с, жалоба, симптом, причина, лечебная skip, давление, сахар, холестерин, анализы/п=анализов|анализы|анализам|анализами|анализах, прививка, укол, капельница
+`,V:`
+болеть, лечить+в, лечиться, поправиться, выздороветь, измерить+в, измерять+в, прописать+в, назначить+в, чувствовать+в, терпеть+в, ухаживать, беспокоить+в,
+отдыхать, поправляться, восстанавливаться, тренироваться, заниматься+т, массажировать skip, делать exist, промыть+в, обработать+в, перевязать+в, лежать exist, вылечить+в, обследовать+в
+`,A:`
+больной, здоровый, слабый, сильный, бодрый, усталый, голодный, сытый, простуженный, болезненный, лечебный, медицинский, врачебный, хронический, острый, тяжёлый,
+лёгкий, опасный, безопасный, нормальный, повышенный, пониженный, температурный, сонный
+`},
+{id:'feel',name:'Чувства и характер',e:'😊',N:`
+радость/ж, счастье/с, горе/с, печаль/ж, грусть/ж, тоска, скука, страх, ужас, тревога, беспокойство/с, спокойствие/с, удивление/с, злость/ж, гнев, обида, стыд,
+вина, совесть/ж, гордость/ж, надежда, вера, любовь/ж=любви|любовь|любви|любовью|любви, дружба, уважение/с, доверие/с, ревность/ж, зависть/ж, жалость/ж, настроение/с, характер,
+привычка, желание/с, мечта, мысль/ж, идея, мнение/с, сомнение/с, смех, улыбка, слеза/ж=слезы|слезу|слезе|слезой|слезе, голод, жажда, лень/ж, терпение/с, сила, воля, ум, душа, дух,
+ответственность/ж, забота, внимание/с, интерес, цель/ж, смысл, правда, ложь/ж, честь/ж, свобода, мир, покой, судьба, удача, беда, радость, одиночество/с, чувство/с, эмоция,
+впечатление/с, воспоминание/с, сюрприз, неприятность/ж, трудность/ж, опасность/ж, благодарность/ж, прощение/с
+`,V:`
+любить+в, ненавидеть+в, бояться+р, радоваться+д, грустить, скучать, злиться, обижаться, смеяться, плакать, улыбаться, удивляться+д, волноваться, переживать,
+тревожиться, надеяться, верить+д, доверять+д, уважать+в, жалеть+в, стыдиться+р, гордиться+т, мечтать, ждать+в, помнить+в, забыть+в, вспомнить+в, радовать+в,
+нравиться+д, хотеть, желать+д, мириться, ссориться, ругаться, прощать+в, благодарить+в, извинять+в, обнимать+в, целовать+в, жалеть, сочувствовать+д, понимать exist, успокоиться,
+успокаивать+в, пугать+в, пугаться+р, обрадоваться+д, расстроиться, огорчаться, сердиться, беспокоиться, скучать exist, чувствовать exist, переживать exist
+`,A:`
+радостный, весёлый, грустный, печальный, спокойный, злой, добрый, ласковый, строгий, умный, глупый, смелый, честный, вежливый, терпеливый, ленивый, счастливый,
+несчастный, довольный, недовольный, удивлённый, испуганный, обиженный, сердитый, нервный, тревожный, одинокий, милый, приятный, неприятный, интересный, скучный,
+смешной, страшный, важный, нужный, ненужный, внимательный, заботливый, щедрый, жадный, скромный, гордый, упрямый, весёлый, живой, тихий, шумный, любопытный
+`},
+{id:'food',name:'Еда',e:'🍲',N:`
+пища, еда, продукты/п=продуктов|продукты|продуктам|продуктами|продуктах, мука, крупа, гречка, овсянка, пшено, горох, фасоль/ж, булка, батон, буханка, сухарь/м, сушка,
+пирог/у? , пирожок/б, блин, оладья=оладьи|оладью|оладье|оладьей|оладье, сырник, пончик, вафля, пряник, шоколад, халва, варенье/с, джем, сметана, сливки/п=сливок|сливки|сливкам|сливками|сливках,
+ряженка, простокваша, ветчина, сало, фарш, говядина, свинина, баранина, индейка, утка, гусь/м, селёдка, щука, лосось/м, треска, икра, соус, уксус, майонез, горчица,
+кетчуп, чеснок/у? , лук, квас, морс, кисель/м, щи/п=щей|щи|щам|щами|щах, уха, солянка, окрошка, пюре/нс, яичница, винегрет, плов, вареники/п=вареников|вареники|варениками|вареникам|вареники,
+голубцы/п=голубцов|голубцы|голубцам|голубцами|голубцах, тефтели/п=тефтелей|тефтели|тефтелям|тефтелями|тефтелях, рагу/нс, жаркое/с=жаркого|жаркое|жаркому|жарким|жарком, шашлык, пицца, пирожное/с=пирожного|пирожное|пирожному|пирожным|пирожном,
+мармелад, зефир, пастила, сгущёнка, творожок/б, жвачка, орехи/п=орехов|орехи|орехам|орехами|орехах, семечки/п=семечек|семечки|семечкам|семечками|семечках, изюм, курага, финики/п=фиников|финики|финикам|финиками|финиках,
+сухофрукты/п=сухофруктов|сухофрукты|сухофруктам|сухофруктами|сухофруктах, консервы/п=консервов|консервы|консервам|консервами|консервах, специи/п=специй|специи|специям|специями|специях,
+приправа, закуска, десерт, гарнир, добавка, порция, кусочек/б, крошки/п=крошек|крошки|крошкам|крошками|крошках, корочка, начинка, тесто/с, паста, лапша, вермишель/ж,
+спагетти/нс, сухой skip, подливка, бутерброд, сэндвич, тост, гренки/п=гренок|гренки|гренкам|гренками|гренках, хлопья/п=хлопьев|хлопья|хлопьям|хлопьями|хлопьях, мюсли/нс, чипсы/п=чипсов|чипсы|чипсам|чипсами|чипсах,
+аппетит, вкус, запах, температура, рецепт, меню/нс
+`,V:`
+готовить+в, варить+в, жарить+в, печь+в, резать+в, мыть+в, чистить+в, солить+в, кормить+в, завтракать, обедать, ужинать, питаться, накрыть+в, разогреть+в, подогреть+в,
+пить+в, выпить+в, поесть+в, съесть+в, откусить+в, пробовать+в, попробовать+в, смешать+в, помешать+в, нарезать+в, натереть+в, заварить+в, налить+в, добавить+в, посолить+в,
+перемешать+в, остудить+в, тушить+в, запечь+в, пожарить+в, сварить+в, испечь+в, голодать, наесться, угощать+в, угостить+в, заказать exist, подать+в
+`,A:`
+невкусный, кислый, горький, острый, пресный, жирный, постный, сырой, варёный, жареный, печёный, копчёный, сухой, мягкий, твёрдый, спелый, сытный, домашний, готовый, пряный,
+сладкий exist, соленый skip, ароматный, свежий exist, тёплый exist, диетический, хрустящий, сочный, вкусный exist, пустой, холодный exist
+`},
+{id:'veg',name:'Овощи и фрукты',e:'🍎',N:`
+картофель/м=картофеля|картофель|картофелю|картофелем|картофеле, капуста, морковь/ж, свёкла, баклажан, кабачок/б, тыква, редис, редька, репа, зелень/ж, укроп, петрушка,
+горошек, кукуруза, грибы/п=грибов|грибы|грибам|грибами|грибах, гриб, груша, слива, вишня, черешня, абрикос, персик, виноград, арбуз, дыня, клубника, малина, смородина,
+черника, брусника, клюква, облепиха, ежевика, мандарин, грейпфрут, киви/нс, ананас, гранат, орех, огурцы/п=огурцов|огурцы|огурцам|огурцами|огурцах, помидоры/п=помидоров|помидоры|помидорам|помидорами|помидорах,
+перец болгарский skip, щавель/м, сельдерей/м=сельдерея|сельдерей|сельдерею|сельдереем|сельдерее, ягоды/п=ягод|ягоды|ягодам|ягодами|ягодах, ягода, косточка, кожура, сок, огородные skip, фрукт, овощ, цветная капуста skip,
+крыжовник, шиповник, калина, рябина, яблоня, груша, виноградник skip, урожай
+`},
+{id:'dish',name:'Посуда и кухня',e:'🍽️',N:`
+посуда, миска, рюмка, бокал, чайник^🫖, кофейник, кастрюля, сковорода, ковш, половник, поднос, ваза, блюдце/с, крышка, банка exist, графин, термос, холодильник, морозилка,
+плита, духовка, микроволновка, тостер, миксер, блендер, мясорубка, кофеварка, табурет, раковина, кран, скатерть/ж, полотенце/с, губка, мыло/с, порошок/бу, тряпка, веник,
+швабра, мусор, пакет, пробка, штопор, открывалка, дуршлаг, доска, чайная ложка skip, столовая ложка skip, термометр, весы/п=весов|весы|весам|весами|весах, чашка exist, сито/с, тёрка, скалка,
+форма, противень/м, прихватка, фартук, салфетница, сахарница, солонка, масленка, хлебница, кувшин, подстаканник, стакан exist, тарелка exist, вилка exist, ложка exist, нож exist, кружка exist
+`,V:`
+вытирать+в, подавать+в, наливать+в, налить exist, положить+в, поставить+в, разрезать+в, открыть exist, мыть exist, накрывать+в, убирать+в, ополоснуть+в, вытереть+в, разбить+в,
+разлить+в, пролить+в, помыть+в, протереть+в, сложить+в, достать+в, убрать+в
+`},
+{id:'home',name:'Дом и мебель',e:'🛋️',N:`
+комната, спальня, гостиная/ж=гостиной|гостиную|гостиной|гостиной|гостиной, ванная/ж=ванной|ванную|ванной|ванной|ванной, коридор, прихожая/ж=прихожей|прихожую|прихожей|прихожей|прихожей,
+балкон, лестница, этаж/у, стена, пол=пола|пол|полу|полом|полу, потолок/б, крыша, ключ/у, замок/б, звонок/б, диван, матрас, простыня, шкаф=шкафа|шкаф|шкафу|шкафом|шкафу,
+комод, полка, тумбочка, зеркало, люстра, торшер, ковёр=ковра|ковёр|ковру|ковром|ковре, штора, занавеска, батарея, обогреватель/м, вентилятор, кондиционер, утюг, пылесос,
+стиральная машина/ж=стиральной машины|стиральную машину|стиральной машине|стиральной машиной|стиральной машине, будильник, календарь/м, картина, фотография, рамка, цветок/б, горшок/б, сад=сада|сад|саду|садом|саду,
+огород, забор, ворота/п=ворот|ворота|воротам|воротами|воротах, калитка, крыльцо/с, гараж/у, сарай, баня, печь/ж, дрова/п=дров|дрова|дровам|дровами|дровах, ванна, душ, унитаз,
+зубная щётка/ж=зубной щётки|зубную щётку|зубной щётке|зубной щёткой|зубной щётке, расчёска, бритва, шампунь/м, мебель/ж, обои/п=обоев|обои|обоям|обоями|обоях, ремонт, этажерка, вешалка, плед,
+наволочка, пододеяльник, скамейка, лавка, качели/п=качелей|качели|качелям|качелями|качелях, беседка, теплица, колодец/б, труба, провод, розетка, лампочка, выключатель/м, лестничная skip,
+хозяйство/с, уют, порядок, беспорядок, чистота, грязь/ж, пыль/ж, тепло/с, холод, сквозняк/б, тишина, шум, свет, темнота, запах exist, дача exist, подвал, чердак, мансарда, веранда, терраса, дверца,
+ручка exist, петля, гвоздь/м, шуруп, крючок/б, выключатель exist, счётчик, квартплата, коммуналка, сосед exist
+`,V:`
+жить, убирать exist, стирать+в, гладить+в, подметать+в, пылесосить+в, ремонтировать+в, чинить+в, строить+в, красить+в, открывать+в, закрывать+в, включать+в, выключать+в, топить+в,
+проветривать+в, сушить+в, вешать+в, ставить+в, класть+в, прибраться, вытрясти+в, повесить+в, застелить+в, постирать+в, погладить+в, подмести+в, протопить+в, заколотить+в,
+переехать, вселиться, поливать+в, полить+в, сажать+в, посадить+в, копать+в, полоть+в, косить+в, собирать+в, окучивать+в, греть+в, согреться, замёрзнуть
+`,A:`
+светлый, тёмный, чистый, грязный, уютный, просторный, тесный, холодный exist, тёплый exist, мягкий exist, твёрдый exist, деревянный, каменный, железный, стеклянный, пластмассовый,
+кирпичный, бумажный, резиновый, кожаный, шерстяной, хлопковый, тканевый
+`},
+{id:'cloth',name:'Одежда и обувь',e:'👕',N:`
+одежда, рубашка, футболка, майка, свитер, кофта, пиджак, костюм, платье/с, юбка, брюки/п=брюк|брюки|брюкам|брюками|брюках, джинсы/п=джинсов|джинсы|джинсам|джинсами|джинсах,
+шорты/п=шорт|шорты|шортам|шортами|шортах, пальто/нс, плащ/у, шуба, жилет, халат, пижама, бельё/с, трусы/п=трусов|трусы|трусам|трусами|трусах, носки/п=носков|носки|носкам|носками|носках,
+колготки/п=колготок|колготки|колготкам|колготками|колготках, шапка, шарф, платок/б, перчатки/п=перчаток|перчатки|перчаткам|перчатками|перчатках, варежки/п=варежек|варежки|варежкам|варежками|варежках,
+пояс, ремень/м=ремня|ремень|ремню|ремнём|ремне, галстук, зонт, рюкзак, кольцо/с, серьги/п=серёг|серьги|серьгам|серьгами|серьгах, цепочка, браслет, обувь/ж, ботинки/п=ботинок|ботинки|ботинкам|ботинками|ботинках,
+туфли/п=туфель|туфли|туфлям|туфлями|туфлях, сапоги/п=сапог|сапоги|сапогам|сапогами|сапогах, кроссовки/п=кроссовок|кроссовки|кроссовкам|кроссовками|кроссовках, тапочки/п=тапочек|тапочки|тапочкам|тапочками|тапочках,
+валенки/п=валенок|валенки|валенкам|валенками|валенках, подошва, шнурок/б, молния, пуговица, карман, воротник/б, рукав, размер, мода, ткань/ж, шерсть/ж, хлопок/б, шёлк, кожа exist,
+мех, подкладка, застёжка, носовой платок skip, футляр, чехол/б, сумочка, кепка, шляпа, берет, купальник, плавки/п=плавок|плавки|плавкам|плавками|плавках, свитшот skip, толстовка, спортивный костюм skip, галоши/п=галош|галоши|галошам|галошами|галошах
+`,V:`
+одеваться, надеть+в, снять+в, носить+в, раздеваться, обуваться, обуть+в, застегнуть+в, расстегнуть+в, завязать+в, развязать+в, примерить+в, зашить+в, порвать+в, одеть+в,
+раздеть+в, переодеться, застегнуть exist, подшить+в, пришить+в, выстирать+в, сносить+в, мерить+в, подходить+д, идти exist
+`,A:`
+модный, красивый, нарядный, удобный, неудобный, мокрый, тесный exist, широкий, узкий, длинный, короткий, модный skip, спортивный, праздничный, рабочий, зимний, летний, повседневный,
+чистый exist, выглаженный, мятый, рваный, дырявый, новый exist, поношенный
+`},
+{id:'city',name:'Город и места',e:'🏙️',N:`
+город, село, посёлок/б, район, переулок/б, проспект, площадь/ж, дорога, тротуар, перекрёсток/б, светофор, переход, мост=моста|мост|мосту|мостом|мосту, сквер, площадка, стадион,
+супермаркет, школа, университет, институт, библиотека, музей, театр, кино/нс, цирк, столовая/ж=столовой|столовую|столовой|столовой|столовой, гостиница, отель/м, церковь/ж, храм, собор, мечеть/ж,
+кладбище/с, станция, аэропорт=аэропорта|аэропорт|аэропорту|аэропортом|аэропорту, порт, парковка, заправка, мастерская/ж=мастерской|мастерскую|мастерской|мастерской|мастерской,
+парикмахерская/ж=парикмахерской|парикмахерскую|парикмахерской|парикмахерской|парикмахерской, прачечная/ж=прачечной|прачечную|прачечной|прачечной|прачечной, полиция, суд, администрация, офис,
+завод, фабрика, ферма, поле, лес=леса|лес|лесу|лесом|лесу, река, озеро, пляж, гора, холм, долина, остров, страна, государство, столица, граница, адрес, север, юг, запад, восток, центр, окраина,
+угол=угла|угол|углу|углом|углу, сторона, середина, конец/бу, начало/с, Россия/и, Москва/и, Самара/и, Волга/и, Европа/и, Азия/и, Америка/и, Китай/и, магазинчик, киоск, рынок, ларёк/б,
+аптечный skip, кассa skip, банкомат, пункт, отделение/с, приёмная/ж=приёмной|приёмную|приёмной|приёмной|приёмной, регистратура, МФЦ/нм, паспортный стол skip, ЖЭК/нм, дом культуры skip, клуб,
+дворец, памятник, фонтан, набережная/ж=набережной|набережную|набережной|набережной|набережной, пристань/ж, дача exist, посёлок, деревня exist, хутор, улочка, двор exist, подворотня, подъезд exist,
+этаж exist, номер exist, дом exist, квартал, микрорайон, остановочный skip, маршрут, адрес exist, табличка, вывеска, указатель/м, знак, карта exist, план, схема
+`},
+{id:'trans',name:'Транспорт',e:'🚌',N:`
+транспорт, троллейбус, трамвай, маршрутка, поезд, электричка, вагон, купе/нс, самолёт, вертолёт, корабль/м, лодка, катер, паром, велосипед^🚲, мотоцикл, скутер, машина^🚗, автомобиль/м,
+грузовик, джип, билет, касса, расписание/с, рейс, платформа, перрон, багаж/у, чемодан, паспорт, виза, руль/м, колесо/с, двигатель/м, бензин, трасса, авария, место/с, окно/с, проход, выход,
+вход, пересадка, остановка exist, пробка exist, штраф, права/п=прав|права|правам|правами|правах, номер exist, водитель exist, пассажир exist, кондуктор/о, контролёр/о, проводник/о, пилот/о, капитан/о,
+механик/о, гараж exist, парковка exist, заправка exist, шлагбаум, переезд, шоссе/нс, магистраль/ж, развязка, указатель exist, тормоз, фара, бампер, капот, багажник, салон, сиденье/с, ремень безопасности skip,
+бак, шина, аккумулятор, топливо/с, ремонт exist, запчасть/ж, мойка, багажная skip, стоянка, поездка exist, дорога exist, путь/м=пути|путь|пути|путём|пути, маршрут exist, расстояние/с, скорость/ж, время exist, опоздание/с
+`,V:`
+ехать, поехать exist, ездить, лететь, летать, плыть, плавать, садиться+, сесть exist, выйти, выходить, войти, входить, пересесть, пересаживаться, подвезти+в, подвозить+в,
+водить+в, везти+в, возить+в, парковаться, припарковаться, заправить+в, заправляться, тормозить, ускориться, обогнать+в, остановиться, останавливаться, опоздать, успеть, встречать+в,
+провожать+в, купить exist, взять exist, оплатить exist, забронировать+в, заказать exist, ждать exist, добраться, доехать, перейти, переехать exist, пройти, проехать, подвезти
+`,A:`
+быстрый, медленный, скорый, дальний, ближний, междугородний, городской, пригородный, автобусный, железнодорожный, воздушный, водный, пассажирский, грузовой, автомобильный,
+свободный exist, занятый, платный, бесплатный, опасный exist
+`},
+{id:'nature',name:'Природа и погода',e:'🌳',N:`
+природа, земля, небо, солнце, луна, звезда, облако, туча, дождь/м, снег, град, ветер=ветра|ветер|ветру|ветром|ветре, гроза, молния exist, гром, туман, мороз, жара, холод exist, тепло exist,
+погода, лёд exist, воздух, огонь/м=огня|огонь|огню|огнём|огне, дым, пар, пыль exist, грязь exist, песок/б, камень/м=камня|камень|камню|камнем|камне, скала, трава, роза, ромашка, тюльпан,
+дерево/с, берёза, ель/ж, сосна, дуб, клён, липа, тополь/м, куст, лист, ветка, корень=корня|корень|корню|корнем|корне, ручей=ручья|ручей|ручью|ручьём|ручье, волна, берег=берега|берег|берегу|берегом|берегу,
+пещера, пустыня, весна, лето/с, осень/ж, зима, сезон, рассвет, закат, тень/ж, тьма, радуга, ураган, наводнение/с, землетрясение/с, засуха, урожай, луг=луга|луг|лугу|лугом|лугу, пруд=пруда|пруд|пруду|прудом|пруду,
+болото, озеро exist, море exist, океан, река exist, водопад, родник/у, источник, лужа, сугроб, снежинка, сосулька, иней, роса, ледоход, паводок/б, оттепель/ж, метель/ж, вьюга, буря, ливень/м,
+изморось/ж, шторм, штиль/м, зарница, северное сияние skip, горизонт, вершина, склон, овраг, тропа, тропинка, поляна, опушка, чаща, роща, заросли/п=зарослей|заросли|зарослям|зарослями|зарослях,
+цветы/п=цветов|цветы|цветам|цветами|цветах, цветок exist, одуванчик, василёк/б, колокольчик, подснежник, сирень/ж, жасмин, пион, лилия, орхидея, ландыш, мох=мха|мох|мху|мхом|мхе, семя/с=семени|семя|семени|семенем|семени,
+жёлудь/м=жёлудя|жёлудь|жёлудю|жёлудем|жёлуде, шишка, хвоя, кора, пень/м=пня|пень|пню|пнём|пне, бревно/с, дрова exist, огонь exist, костёр=костра|костёр|костру|костром|костре, пожар, дым exist, экология, климат, градус, давление exist, осадки/п=осадков|осадки|осадкам|осадками|осадках
+`,V:`
+светить, греть exist, таять, замерзать, замёрзнуть exist, дуть, расти, цвести, падать, течь, лить, капать, сверкать, греметь, темнеть, светлеть, холодать, теплеть, мёрзнуть, жариться,
+дождить skip, идти exist, цвести exist, зеленеть, желтеть, облетать, увядать, распускаться, зреть, созревать, подниматься, заходить, вставать exist, сиять, переливаться, шуметь, шелестеть
+`,A:`
+солнечный, пасмурный, облачный, дождливый, ветреный, морозный, снежный, жаркий, прохладный, влажный, ясный, красивый, зелёный, лесной, полевой, речной, морской, горный, северный,
+южный, западный, восточный, летний, зимний, весенний, осенний, дикий, природный, пушистый, колючий, высокий, низкий, глубокий, мелкий, быстрый exist, спокойный exist, бурный, прозрачный, чистый exist
+`},
+{id:'animals',name:'Животные и птицы',e:'🐕',N:`
+животное/с=животного|животное|животному|животным|животном, зверь/мо, собака/о^🐕, пёс=пса|пса|псу|псом|псе^🐕, щенок/бо, кошка/о^🐈, кот/о^🐈, котёнок/о=котёнка|котёнка|котёнку|котёнком|котёнке,
+мышь/ож, крыса/о, хомяк/о, кролик/о^🐇, корова/о^🐄, бык/о, телёнок/о=телёнка|телёнка|телёнку|телёнком|телёнке, лошадь/ож=лошади|лошадь|лошади|лошадью|лошади^🐎, конь/мо, овца/о=овцы|овцу|овце|овцой|овце^🐑,
+коза/о^🐐, свинья/о=свиньи|свинью|свинье|свиньёй|свинье^🐖, осёл/о=осла|осла|ослу|ослом|осле, курица exist, петух/о, утка exist, гусь exist, индюк/о, голубь/мо^🕊️, воробей/мо=воробья|воробья|воробью|воробьём|воробье,
+ворона/о, сорока/о, синица/о, ласточка/о, соловей/мо=соловья|соловья|соловью|соловьём|соловье, орёл/о=орла|орла|орлу|орлом|орле^🦅, сова/о^🦉, попугай/о^🦜, птица/о^🐦, волк/о^🐺, лиса/о^🦊,
+медведь/мо^🐻, заяц/о=зайца|зайца|зайцу|зайцем|зайце, белка/о, ёж/о=ежа|ежа|ежу|ежом|еже, олень/мо, лось/мо, слон/о^🐘, лев/о=льва|льва|льву|львом|льве^🦁, тигр/о^🐅, обезьяна/о^🐒,
+жираф/о, крокодил/о, змея/о=змеи|змею|змее|змеёй|змее^🐍, лягушка/о^🐸, рыбка/о^🐟, карась/мо, акула/о^🦈, кит/о^🐋, дельфин/о^🐬, насекомое/с=насекомого|насекомое|насекомому|насекомым|насекомом,
+муха/о, комар/о, пчела/о=пчелы|пчелу|пчеле|пчелой|пчеле^🐝, оса/о=осы|осу|осе|осой|осе, бабочка/о^🦋, жук/о, муравей/мо=муравья|муравья|муравью|муравьём|муравье^🐜, паук/о^🕷️, червяк/о,
+стая, гнездо/с, клюв, крыло/с=крыла|крыло|крылу|крылом|крыле, перо/с, шерсть exist, лапа, хвост, рог, копыто, клетка, будка, аквариум, конура, поводок/б, ошейник, корм, миска exist,
+пастух/о, стадо/с, табун, курятник, хлев, конюшня, пасека, улей, мёд exist, воск, рыбалка exist, охота exist, дичь/ж, добыча, след, нора, берлога, логово/с
+`,V:`
+лаять, мяукать, кусать exist, ловить+в, летать exist, плавать exist, кормить exist, гулять exist, ползать, прыгать, бегать, чирикать, кукарекать, мычать, хрюкать, блеять, ржать, выть, рычать,
+пастись, охотиться, ловить exist, дрессировать+в, приручить+в, выгуливать+в, гладить exist, чесать exist, спать exist, линять, вить+в, клевать+в
+`,A:`
+домашний exist, дикий, пушистый, колючий, хищный, ручной, породистый, бездомный, голодный exist, сытый exist, маленький exist, большой exist, ласковый exist, злой exist, умный exist, верный, быстрый exist
+`},
+{id:'time',name:'Время и календарь',e:'🕒',N:`
+секунда, минута exist, час exist, сутки/п=суток|сутки|суткам|сутками|сутках, неделя exist, выходные/п=выходных|выходные|выходным|выходными|выходных, будни/п=будней|будни|будням|буднями|буднях, месяц exist,
+год exist, век, десятилетие/с, праздник, Рождество/ис, Пасха/и, юбилей, свадьба, дата, число exist, будущее/с=будущего|будущее|будущему|будущим|будущем, прошлое/с=прошлого|прошлое|прошлому|прошлым|прошлом,
+настоящее/с=настоящего|настоящее|настоящему|настоящим|настоящем, возраст, молодость/ж, старость/ж, детство/с, жизнь/ж=жизни|жизнь|жизни|жизнью|жизни, момент, очередь/ж, срок, опоздание exist,
+Новый год/и=Нового года|Новый год|Новому году|Новым годом|Новом году, день рождения skip, суббота exist, понедельник exist, полдень/м=полудня|полдень|полудню|полднем|полдне, полночь/ж, начало exist, конец exist,
+середина exist, перерыв, пауза, отпуск exist, каникулы/п=каникул|каникулы|каникулам|каникулами|каникулах, график, смена, дежурство/с, режим exist, привычка exist, традиция, обычай, история,
+эпоха, прошлое exist, возраст exist, поколение/с, годовщина, именины/п=именин|именины|именинам|именинами|именинах, встреча, приглашение/с, визит, поздравление/с, подарок/б, открытка exist
+`,V:`
+ждать exist, опаздывать, успевать, спешить, торопиться, начинать+в, начать+в, продолжать+в, продолжить+в, заканчивать+в, закончить+в, кончиться, длиться, откладывать+в, отложить+в, назначить exist,
+договориться, встретиться, встречать exist, повторяться, происходить, случиться, случаться, пройти exist, наступить, наступать, отмечать+в, отметить+в, праздновать exist, поздравлять exist
+`,D:`
+давно, недавно, рано, поздно, вовремя, сначала, затем, наконец, снова, опять, уже, иногда, часто, редко, обычно, вдруг, сразу, долго, быстро, медленно, весной, летом, осенью, зимой,
+ежедневно, ежегодно, теперь, тогда, заранее, надолго, ненадолго, навсегда, днями skip, ныне, прежде, раньше, позже exist, всегда exist, никогда exist, постоянно, временами, подряд, поочерёдно,
+завтрашний skip, вначале, вконце skip, впервые, дважды, трижды, ровно, почти, примерно, около, приблизительно
+`},
+{id:'money',name:'Деньги и магазин',e:'💰',N:`
+рубль/м, копейка, цена, стоимость/ж, зарплата, пенсия, налог/у?, счёт exist, чек, товар, покупка, скидка, акция, распродажа, подарок exist, упаковка, пакет exist, корзина, тележка, витрина,
+прилавок/б, качество/с, количество/с, вес=веса|вес|весу|весом|весе, штука, килограмм, грамм, литр, метр, сантиметр, пачка, коробка, бутылка exist, банка exist, касса exist, сдача exist, кошелёк exist,
+монета, купюра, мелочь/ж, долг=долга|долг|долгу|долгом|долге, кредит, вклад, процент, платёж/у, квитанция, оплата, доплата, взнос, перевод, получка, аванс, премия, расход, доход, бюджет,
+бедность/ж, богатство/с, выгода, польза, убыток/б, прибыль/ж, товарищ skip, магазинчик exist, лавка exist, бакалея, гастроном, булочная/ж=булочной|булочную|булочной|булочной|булочной, мясной skip, овощной skip,
+хозтовары/п=хозтоваров|хозтовары|хозтоварам|хозтоварами|хозтоварах, одежда exist, продавщица/о, торговля/ж, рынок exist, ярмарка, ассортимент, срок годности skip, этикетка, ценник, штрихкод, гарантия, возврат, обмен,
+чаевые exist, наличные exist, карта exist, пин-код skip, терминал, банкомат exist, сумма, итого/нс, остаток/б, лишнее/с=лишнего|лишнее|лишнему|лишним|лишнем, недостача, ошибка exist, обман, мошенник/о, вор/о=вора|вора|вору|вором|воре
+`,V:`
+покупать+в, продавать+в, продать+в, платить+в, тратить+в, потратить+в, копить+в, занять+в, одолжить+в, вернуть+в, менять+в, обменять+в, выбирать+в, выбрать+в, взвесить+в, считать+в,
+посчитать+в, стоить, дорожать, дешеветь, экономить+в, торговаться, расплатиться, снять+в, положить exist, перевести+в, получить+в, получать+в, обманывать+в, обмануть+в, красть+в, потерять+в,
+терять+в, найти exist, искать+в, пересчитать+в, сдать+в, сдавать+в, арендовать+в, вернуть exist, завернуть+в, упаковать+в, примерять+в, оформить+в
+`,A:`
+дорогой, дешёвый, бесплатный, платный, свободный exist, богатый, бедный, выгодный, невыгодный, дефицитный, лишний, мелкий, крупный, целый, оптовый, розничный, скидочный, магазинный, рублёвый, бумажный exist
+`},
+{id:'work',name:'Работа и учёба',e:'💼',N:`
+работа, дело=дела|дело|делу|делом|деле, задача, проект, план, договор, документ, письмо, открытка exist, конверт, марка, подпись/ж, печать/ж, анкета, форма exist, номер exist, список, таблица,
+отчёт, совещание/с, собрание/с, мастер/о, станок/б, инструмент, молоток/б, отвёртка, пила, топор, гайка, верёвка, строительство/с, материал, кирпич/у, цемент, краска, кисть/ж, клей=клея|клей|клею|клеем|клее,
+карандаш/у, тетрадь/ж, учебник, урок, занятие/с, экзамен, оценка, класс, профессия, должность/ж, опыт, навык, знание/с, умение/с, вопрос, ответ, решение/с, проблема, причина exist, результат, успех,
+ошибка, совет, просьба, помощь exist, работа exist, труд, зарплата exist, смена exist, бригада, коллектив, предприятие/с, организация, учреждение/с, отдел, цех, склад, контракт, заявка, заказ exist,
+бланк, печатка, штамп, архив, папка, ручка exist, ластик, линейка, циркуль/м, чертёж/у, рисунок/б, схема exist, инструкция, правило/с, закон, приказ, указание/с, разрешение/с, запрет, объявление/с,
+реклама, новость/ж, информация, данные/п=данных|данные|данным|данными|данных, факт, пример, тема, текст, слово/с, предложение/с, буква, цифра, число exist, цель exist, смысл exist, способ,
+метод, система, порядок exist, работодатель/о, безработный/о=безработного|безработного|безработному|безработным|безработном, пенсионер/о, инженер/о, механик exist, токарь/мо, слесарь/мо, электрик/о, сантехник/о, плотник/о,
+столяр/о, сварщик/о, бухгалтер/о, юрист/о, адвокат/о, нотариус/о, секретарь/мо, менеджер/о, предприниматель/о, бизнесмен/о, клиент/о, заказчик/о, исполнитель/о, помощник/о, ученик exist, напарник/о
+`,V:`
+работать, трудиться, сделать+в, заниматься exist, учиться, учить+в, изучать+в, писать+в, считать exist, решать+в, решить+в, думать, понимать exist, знать+в, уметь, мочь, просить+в, спросить+в, спрашивать+в,
+отвечать+д, ответить exist, объяснять+д, объяснить+д, показывать+д, показать+в, рассказывать+д, рассказать+д, пилить+в, сверлить+в, клеить+в, собирать exist, собрать exist, разбирать+в, починить+в,
+сломать+в, ломаться, испортить+в, проверять+в, проверить+в, нести+в, руководить+т, управлять+т, организовать+в, планировать+в, договариваться, подписать+в, оформить exist, заполнить+в, заполнять+в,
+отправить exist, принять exist, увольнять+в, уволиться, устроиться, нанять+в, зарабатывать+в, заработать+в, стараться, пытаться, получаться, удаваться+д, справиться, успеть exist, поручить+д,
+обучать+в, преподавать+в, сдать exist, сдавать exist, поступить, закончить exist, готовиться, повторять+в, запомнить+в, запоминать+в, переписывать+в, переводить+в, читать exist, рисовать exist, чертить+в, измерять exist
+`,A:`
+трудный, лёгкий exist, сложный, простой, тяжёлый exist, главный, готовый exist, рабочий exist, нужный exist, важный exist, правильный, неправильный, точный, неточный, срочный, обязательный,
+полезный, вредный, опытный, умелый, способный, занятой, свободный exist, ответственный, бумажный exist, письменный, устный, официальный, личный, общий, частный, государственный, новый exist, разный
+`},
+{id:'tech',name:'Связь и техника',e:'📱',N:`
+смартфон, компьютер, ноутбук, клавиатура, экран, монитор, принтер, интернет, сеть/ж, сообщение/с, смс/нж, контакт, приложение/с, программа, игра, видео/нс, фото/нс, камера, радио/нс, антенна,
+наушники/п=наушников|наушники|наушникам|наушниками|наушниках, колонка, динамик, микрофон, аккумулятор exist, пароль/м, логин, ссылка, сайт, страница, файл, папка exist, кнопка, звук, громкость/ж,
+связь/ж, сигнал, мессенджер, почта exist, эл. почта skip, видеозвонок, фотография exist, снимок exist, галерея, обои exist, будильник exist, таймер, календарь exist, заметка, напоминание/с, навигатор,
+карта exist, зарядное устройство skip, флешка, диск, телевидение/с, канал, передача exist, сериал, фильм, реклама exist, звонок exist, голосовое сообщение skip, номер exist, симка, тариф, баланс, пополнение/с,
+роутер, вай-фай/нм, пульт exist, батарейка exist, лампочка exist, розетка exist, удлинитель/м, сетевой skip, техника, прибор, устройство/с, аппарат, механизм, мотор, датчик, пульт управления skip
+`,V:`
+звонить+д, набрать+в, отправить exist, отправлять+в, получить exist, искать exist, нажать+в, нажимать+в, слушать+в, снимать+в, фотографировать+в, печатать+в, сохранить+в, скачать+в, загрузить+в,
+заряжать+в, зарядить+в, разрядиться, зависнуть, включить exist, выключить exist, перезагрузить+в, подключить+в, подключиться, отключить+в, настроить+в, настраивать+в, установить+в, удалить+в,
+записать+в, записывать+в, переслать+в, пересылать+в, показать exist, увеличить+в, уменьшить+в, прибавить+в, убавить+в, переключить+в, найти exist, открыть exist, закрыть exist, читать exist, звонить exist
+`,A:`
+мобильный, цифровой, электронный, электрический, беспроводной, громкий exist, тихий exist, сломанный, рабочий exist, новый exist, старый exist, быстрый exist, медленный exist, зарядный, включённый, выключенный,
+доступный, недоступный, занятый exist, свободный exist, бесплатный exist, платный exist
+`},
+{id:'leisure',name:'Отдых и культура',e:'🎭',N:`
+хобби/нс, шахматы/п=шахмат|шахматы|шахматам|шахматами|шахматах, домино/нс, пазл, кроссворд, журнал, роман, стихотворение/с, сказка, рассказ, песня, музыка, танец/бу, фильм exist, концерт, спектакль/м,
+выставка, рисунок exist, гитара, пианино/нс, скрипка, баян, спорт, футбол, хоккей, теннис, бег, ходьба, плавание/с, тренировка, мяч/у, поход, рыбалка, охота, удочка, пикник, сауна, путешествие/с,
+экскурсия, достопримечательность/ж, фотоаппарат, сувенир, икона, молитва, Бог/и=Бога|Бога|Богу|Богом|Боге, крест, свеча/ж=свечи|свечу|свече|свечой|свече, праздник exist, гости exist, застолье/с,
+тост exist, подарок exist, открытка exist, шарик, торт exist, салют, ёлка, игрушка, кукла, конструктор, раскраска, карандаши/п=карандашей|карандаши|карандашам|карандашами|карандашах, краски/п=красок|краски|краскам|красками|красках,
+холст, мольберт, выставка exist, кружок/б, секция, клуб exist, хор, оркестр, ансамбль/м, солист/о, зритель/м, публика, билет exist, зал, сцена, аплодисменты/п=аплодисментов|аплодисменты|аплодисментам|аплодисментами|аплодисментах,
+программа exist, телевизор exist, радио exist, диск exist, пластинка, магнитофон, патефон, радиоприёмник, самодеятельность/ж, рукоделие/с, вязание/с, шитьё/с=шитья|шитьё|шитью|шитьём|шитье, вышивка, спицы/п=спиц|спицы|спицам|спицами|спицах,
+нитки/п=ниток|нитки|ниткам|нитками|нитках, иголка, пряжа, ткань exist, огород exist, цветник, грядка, рассада, клумба, лейка, лопата, грабли/п=граблей|грабли|граблям|граблями|граблях, тачка, ведро/с=ведра|ведро|ведру|ведром|ведре,
+шезлонг, гамак, мангал, шампур, угли/п=углей|угли|углям|углями|углях, походная skip, палатка, рюкзак exist, костёр exist, компас, карта exist
+`,V:`
+отдыхать exist, играть, плавать exist, бегать, ходить, танцевать, петь, слушать exist, смотреть exist, читать exist, рисовать+в, шить+в, вязать+в, вышивать+в, путешествовать, фотографировать exist, загорать,
+купаться, кататься, веселиться, развлекаться, праздновать+в, поздравлять+в, дарить+в, подарить+в, приглашать+в, пригласить+в, гулять exist, ловить exist, собирать exist, играть exist, смеяться exist, выступать,
+репетировать+в, сочинять+в, рассказывать exist, молиться, креститься, ставить exist, зажигать+в, зажечь+в, любоваться+т, наслаждаться+т, отдохнуть exist, развлечь+в, скучать exist, тренироваться exist, заниматься exist
+`,A:`
+интересный exist, скучный exist, весёлый exist, музыкальный, спортивный exist, праздничный exist, любимый exist, красивый exist, шумный exist, тихий exist, лёгкий exist, увлекательный, забавный, смешной exist, грустный exist, знаменитый,
+известный, популярный, древний, народный, классический, современный, живой exist, новый exist, старый exist
+`},
+{id:'verbs1',name:'Глаголы: движение',e:'🚶',V:`
+идти, ходить, пойти, ездить, бежать, плыть, лететь, прийти, приходить, приехать, приезжать, уйти, уходить, уехать, уезжать, войти exist, входить, зайти, заходить, подойти, подходить, отойти, отходить, переходить,
+проходить, проезжать, доходить, возвращаться, повернуть, поворачивать, остановить+в, стоять, сидеть, лежать, садиться, вставать, ложиться, падать exist, упасть, подниматься, подняться, спускаться, спуститься, догнать+в,
+догонять+в, отстать, толкать+в, тянуть+в, нести+в, везти exist, класть, положить exist, ставить exist, поставить exist, держать+в, бросать+в, бросить+в, поймать+в, поднимать+в, опустить+в, вести+в, брать+в, взять exist,
+двигаться, шагнуть, прыгнуть, прыгать, ползти, ползать, крутиться, вертеться, качаться, махнуть, дёрнуть+в, тащить+в, катить+в, катиться, скользить, спотыкаться, споткнуться, упираться, цепляться, хвататься,
+шагать, топать, бродить, гулять exist, догонять exist, убегать, убежать, бежать exist, спешить exist, торопиться exist, ждать exist, нести exist, переносить+в, перенести+в, передвигать+в, передвинуть+в, двигать+в, сдвинуть+в,
+отодвинуть+в, придвинуть+в, перевернуть+в, повернуться, развернуться, отвернуться, оглянуться, оборачиваться, наклониться, выпрямиться, присесть, приседать, встряхнуть+в, трясти+в, раскачивать+в, вращать+в
+`},
+{id:'verbs2',name:'Глаголы: речь и мысли',e:'💬',V:`
+говорить, сказать+д, спросить exist, ответить exist, рассказать exist, слушать exist, слышать exist, видеть exist, смотреть exist, думать exist, знать exist, понимать exist, помнить exist, забыть exist, вспомнить exist,
+решить exist, выбрать exist, хотеть, желать exist, мечтать exist, просить exist, требовать+р, предлагать+в, предложить+в, советовать+д, посоветовать+д, разрешать+в, разрешить+в, запрещать+в, запретить+в, обещать+д,
+пообещать+д, благодарить exist, извинять exist, прощать exist, поздравлять exist, приветствовать+в, называть+в, назвать+в, звать+в, позвать+в, кричать, шептать, молчать, петь exist, читать exist, писать exist,
+разговаривать, беседовать, болтать, спорить, соглашаться, согласиться, отказаться, отказывать+д, возражать, сомневаться, догадываться, догадаться, считать exist, полагать, представлять+в, представить+в,
+воображать+в, угадать+в, узнать+в, узнавать+в, заметить+в, замечать+в, обратить+в, обращать+в, следить, смотреть exist, глядеть, наблюдать, рассматривать+в, разглядывать+в, показаться+д, казаться+д,
+звучать, произносить+в, произнести+в, повторить exist, повторять exist, переспрашивать+в, переспросить+в, объявлять+в, объявить+в, сообщать+д, сообщить+д, передавать+д, передать+д, докладывать+д, докладывать skip,
+отвечать exist, звонить exist, написать exist, прочитать+в, прочесть+в, записать exist, подумать, решать exist, учить exist, помогать exist, помочь exist, поддерживать+в, поддержать+в, убеждать+в, убедить+в,
+уговаривать+в, уговорить+в, ругать+в, ругаться exist, хвалить+в, похвалить+в, критиковать+в, осуждать+в, обвинять+в, оправдывать+в, оправдываться, объясняться, признаваться, признаться, делиться+т, поделиться+т
+`},
+{id:'verbs3',name:'Глаголы: дела и состояния',e:'🛠️',V:`
+быть, стать+т, оставаться, остаться, казаться exist, становиться+т, жить exist, умереть, родиться, расти exist, стареть, спать, просыпаться, проснуться, засыпать, заснуть, дышать exist, иметь+в, давать+д, дать+д, брать exist,
+получать exist, держать exist, терять exist, находить+в, искать exist, ломать+в, открывать exist, закрывать exist, начинать exist, кончать+в, хватать+в, хватить+р, мочь exist, уметь exist, стараться exist, пробовать exist,
+делать+в, сделать exist, работать exist, использовать+в, пользоваться+т, применять+в, нужен skip, требоваться, приходиться+д, придётся skip, случаться exist, происходить exist, получаться exist, выходить exist,
+менять exist, меняться, изменить+в, изменяться, исправить+в, исправлять+в, улучшить+в, улучшаться, ухудшаться, увеличиваться, уменьшаться, расти exist, падать exist, подниматься exist, накопиться, остаться exist,
+оставить+в, оставлять+в, бросить exist, забирать+в, забрать+в, отдавать+в, отдать exist, принимать+в, принять exist, снимать exist, надевать+в, носить exist, везти exist, ловить exist, пускать+в, пустить+в,
+впускать+в, выпускать+в, закрыть exist, запереть+в, отпереть+в, прятать+в, спрятать+в, искать exist, потерять exist, найти exist, хранить+в, беречь+в, сохранять+в, сберечь+в, портить+в, чистить exist,
+мыть exist, стирать exist, сушить exist, гладить exist, шить exist, вязать exist, чинить exist, строить exist, копать exist, сажать exist, сеять+в, жать+в, косить exist, пилить exist, рубить+в, колоть+в, бить+в,
+стучать, звонить exist, шуметь exist, гореть, жечь+в, тушить exist, тонуть, плыть exist, течь exist, кипеть, остывать, нагреваться, замерзать exist, таять exist, мокнуть, сохнуть, сушить exist, блестеть, гнуться, ломаться exist,
+рваться, падать exist, разбиться, лопнуть, треснуть, затонуть, заблудиться, потеряться, опоздать exist, успеть exist, проспать+в, забыться, вздремнуть, дремать, отдохнуть exist, выспаться, будить+в, разбудить+в, снить+в,
+видеть exist, привыкнуть, привыкать, учиться exist, возражать exist, соглашаться exist, пригодиться+д, понадобиться+д, хватать exist, недоставать skip, вмещать+в, содержать+в, состоять, находиться, располагаться, лежать exist,
+висеть, стоять exist, сидеть exist, торчать, виднеться, слышаться, чувствоваться, ощущать+в, ощутить+в
+`},
+{id:'adj1',name:'Какой: размер и свойства',e:'📏',A:`
+огромный, крошечный, длинный, короткий, широкий, узкий, высокий, низкий, толстый, тонкий, глубокий, мелкий, круглый, квадратный, прямой, кривой, плоский, тупой, полный, пустой, целый,
+сломанный, открытый, закрытый, первый, второй, третий, последний, предыдущий, одинаковый, разный, другой, такой, любой, единственный, главный, основной, средний, общий, особый, редкий, частый,
+густой, жидкий, гладкий, шершавый, ровный, чистый, грязный, мокрый, сухой, влажный, тяжёлый, лёгкий, прочный, хрупкий, гибкий, упругий, скользкий, липкий, острый, колючий, мягкий, твёрдый, плотный,
+пушистый, гладкий, шумный, тихий, громкий, яркий, тусклый, прозрачный, мутный, пёстрый, одноцветный, чёткий, расплывчатый, точный, приблизительный, постоянный, временный, вечный, быстрый, медленный,
+ранний, поздний, дальний, ближний, левый, правый, верхний, нижний, передний, задний, внутренний, внешний, боковой, центральный, соседний, свободный, занятый, открытый, пустой, переполненный
+`},
+{id:'adj2',name:'Какой: цвета и вид',e:'🎨',A:`
+красный, синий, голубой, зелёный, жёлтый, оранжевый, фиолетовый, розовый, коричневый, серый, чёрный, белый, золотой, серебряный, светлый, тёмный, яркий, бежевый, бордовый, лиловый, салатовый,
+красивый, некрасивый, симпатичный, привлекательный, нарядный, аккуратный, неряшливый, опрятный, стройный, худой, полный, толстый, высокий, низкий, молодой, старый, пожилой, седой, лысый,
+кудрявый, рыжий, светловолосый, темноволосый, бородатый, усатый, румяный, бледный, загорелый, здоровый, больной, красивый, уродливый, милый, обаятельный, добродушный, приятный, неприятный
+`},
+{id:'adj3',name:'Какой: оценка и вид',e:'⭐',A:`
+хороший, плохой, лучший, худший, правильный, неправильный, красивый, молодой, древний, современный, готовый, чужой, свой, собственный, родной, местный, русский, иностранный, городской,
+деревенский, домашний, дикий, настоящий, обычный, особенный, странный, необычный, известный, знаменитый, богатый, бедный, живой, сильный, слабый, быстрый, медленный, летний, зимний, весенний,
+осенний, утренний, вечерний, дневной, ночной, ежедневный, недельный, месячный, годовой, прошлый, будущий, нынешний, сегодняшний, вчерашний, завтрашний, давний, недавний, нужный, ненужный,
+важный, неважный, главный, второстепенный, возможный, невозможный, необходимый, достаточный, недостаточный, подходящий, неподходящий, удобный, неудобный, приятный, неприятный, интересный, скучный,
+счастливый, несчастный, довольный, недовольный, спокойный, беспокойный, лёгкий, трудный, простой, сложный, понятный, непонятный, ясный, неясный, известный, неизвестный, свободный, занятый
+`},
+{id:'adv',name:'Слова: наречия и частицы',e:'🔤',D:`
+очень, совсем, слишком, довольно, почти, только, даже, тоже, также, уже, всё, всего, больше, меньше, лучше, хуже, быстро, медленно, тихо, громко, красиво, правильно, неправильно, легко, трудно, просто,
+сложно, вместе, отдельно, сам, тут, вот, сюда, туда, отсюда, оттуда, везде, нигде, где-то, куда-то, рядом, вокруг, дома, вверх, вниз, вперёд, внутри, снаружи, наверху, внизу, впереди, сзади, слева, справа,
+посередине, поблизости, наверное, возможно, обязательно, пожалуй, вообще, например, кстати, значит, итак, зато, немного, много, мало, достаточно, чуть, едва, вполне, совершенно, абсолютно, очень exist,
+хорошо exist, плохо exist, прекрасно, отлично exist, замечательно, ужасно, страшно exist, весело, грустно exist, скучно, интересно, неинтересно, полезно, вредно, нужно, надо, можно exist, нельзя, должно, готово,
+вежливо, осторожно, аккуратно, внимательно, спокойно, нервно, сердито, радостно, печально, удивлённо, растерянно, уверенно, неуверенно, свободно, туго, крепко, слабо, сильно, резко, плавно,
+постепенно, понемногу, сразу exist, вдвоём, втроём, одному skip, самому skip, пешком, верхом, вслух, шёпотом, вручную, бегом, шагом, по-русски, по-английски, по-моему, по-вашему, так, этак, иначе, по-другому,
+вдруг exist, случайно, нарочно, специально, снова exist, ещё раз skip, опять exist, вновь, заново, отчасти, целиком, полностью, частично, главным образом skip, прежде всего skip, в основном skip, наконец exist, вообще exist
+`,W:`
+и, а, но, или, потому что, поэтому, если, чтобы, что, как, пока exist, хотя, зато exist, либо, да, ли, бы, не, ни, же, ведь, вот exist, лишь, просто exist, тоже exist, также exist, как будто, словно, будто,
+когда, пока не, едва, после того как, прежде чем, так как, несмотря на, хоть, пусть, ли skip, неужели, разве, вряд ли, наверняка, кажется, конечно exist, видимо, очевидно, пожалуйста exist, спасибо exist,
+здравствуйте exist, привет exist, ладно, хорошо exist, ага, угу, ой, ах, ох, увы, браво, ура, эй, алло, так, ну, вот так, да ну, ну что, ну и, как же, так вот
+`},
+{id:'phr',name:'Готовые фразы',e:'💬',P:`
+Доброе утро, Добрый день, Добрый вечер, Спокойной ночи, До завтра, С праздником, С днём рождения, Приятного аппетита, Будьте здоровы, Всего хорошего, Счастливо, Удачи, Не за что, Ничего страшного, Как хорошо,
+Очень приятно, Рад вас видеть, Давно не виделись, Всё хорошо, Всё в порядке, Ничего, Не надо, Не нужно, Хватит, Достаточно, Ещё раз, Я понял, Я не понял, Я забыл, Я помню, Я знаю, Мне всё равно, Мне интересно,
+Мне скучно, Мне нравится, Мне не нравится, Мне лень, Мне пора, Мне жаль, Мне стыдно, Мне страшно exist, Мне некогда, Мне пока рано, Мне лучше, Мне хуже, Подождите немного, Одну минуту, Сейчас приду, Сейчас вернусь, Извините за беспокойство,
+Спасибо большое, Большое спасибо, Спасибо вам, Пожалуйста, садитесь, Проходите, Заходите, Присаживайтесь, Не беспокойтесь, Не волнуйтесь, Берегите себя, Выздоравливайте, Поправляйтесь, Звоните, Пишите, Приходите,
+Заходите в гости, Приезжайте, До встречи, До скорого, До свидания exist, Всего доброго, С наступающим, С Новым годом, С Рождеством, С Пасхой, Христос воскресе, Воистину воскресе, Поздравляю, Соболезную, Сочувствую,
+Это правда, Это неправда, Это так, Это не так, Это хорошо, Это плохо, Это здорово, Это ужасно, Это не страшно, Это можно, Это нельзя, Это моё, Это ваше, Это не моё, Это для вас, Это для меня, Что вам нужно,
+Чем помочь, Как вас зовут, Меня зовут, Я живу, Я из, Мне лет, Я пенсионер, Я работаю, Я не работаю, У меня есть, У меня нет, У вас есть, У вас нет, Есть ли, Сколько с меня, Я дома, Я скоро буду, Я уже иду
+`}
+];
+
+/* предлоги (с падежом): [подпись, текст, падеж] */
+const PREPS=[
+['У (кого)','у','gen'],['От','от','gen'],['С (от, из)','с','gen'],['После','после','gen'],['Перед','перед','inst'],['За (где)','за','inst'],['За (куда)','за','acc'],
+['Под (где)','под','inst'],['Над','над','inst'],['Между','между','inst'],['Около','около','gen'],['Возле','возле','gen'],['Рядом с','рядом с','inst'],['Напротив','напротив','gen'],
+['Вокруг','вокруг','gen'],['Вместо','вместо','gen'],['Кроме','кроме','gen'],['Против','против','gen'],['По','по','dat'],['О (чём)','о','prep'],['При','при','prep'],
+['Ради','ради','gen'],['Во время','во время','gen'],['Вдоль','вдоль','gen'],['Среди','среди','gen'],['Внутри (чего)','внутри','gen'],['Из-за','из-за','gen'],['Благодаря','благодаря','dat'],
+['Согласно','согласно','dat'],['Вместе с','вместе с','inst']
+];
+
+/* ---------- словарь: разбор и сборка плиток ---------- */
+const CAPS=x=>x?x[0].toUpperCase()+x.slice(1):x;
+const GOVM={'в':'acc','д':'dat','р':'gen','т':'inst'};
+const nz=x=>String(x).toLowerCase().replace(/ё/g,'е');
+let dictItems=[],dcnt={};
+function parseTok(raw){
+  let t=raw.trim().replace(/\?/g,'');if(!t||/\s(skip|exist)$/.test(t))return null;
+  let e='',f='',tags='',gov='',i=t.indexOf('^');
+  if(i>=0){e=t.slice(i+1).trim();t=t.slice(0,i);}
+  i=t.indexOf('=');if(i>=0){f=t.slice(i+1).trim();t=t.slice(0,i);}
+  i=t.indexOf('/');if(i>=0){tags=t.slice(i+1).trim();t=t.slice(0,i);}
+  const m=t.match(/\+([вдрт]?)$/);if(m){gov=GOVM[m[1]]||'';t=t.slice(0,-m[0].length);}
+  t=t.trim();return t?{w:t,e,f,tags,gov}:null;
+}
+function buildDict(){
+  const seen=new Set(items.map(i=>nz(i.label)+'|'+typ(i)));
+  const out=[];
+  const add=(th,kind,o,gram,label)=>{
+    const key=nz(label)+'|'+gram.t;if(seen.has(key))return;seen.add(key);
+    out.push({id:'d:'+kind+':'+nz(label),label,say:'',emoji:o&&o.e||'',img:null,cat:'dict',th,d:1,gram,count:dcnt['d:'+kind+':'+nz(label)]||0});
+  };
+  for(const T of DICT){
+    for(const kind of ['N','V','A','D','W','P']){
+      if(!T[kind])continue;
+      for(const raw of T[kind].split(/,|\n/)){
+        const o=parseTok(raw);if(!o)continue;
+        let gram,label=kind==='P'?o.w:CAPS(o.w);
+        if(kind==='N'){
+          const g={t:'noun'},tg=o.tags;
+          g.g=tg.includes('п')?'p':tg.includes('ж')?'f':tg.includes('м')?'m':tg.includes('с')?'n':/[ая]$/.test(o.w)?'f':/[оеё]$/.test(o.w)?'n':'m';
+          if(tg.includes('о'))g.an=1;if(tg.includes('н'))g.id=1;if(tg.includes('б'))g.b=1;if(tg.includes('у'))g.u=1;if(tg.includes('и'))g.pn=1;
+          if(o.f)g.f=o.f.split('|').join(',');
+          gram=g;
+        }else if(kind==='V')gram=o.gov?{t:'verb',gov:o.gov}:{t:'verb'};
+        else if(kind==='A')gram={t:'adj'};
+        else if(kind==='D')gram={t:'word',ad:1};
+        else gram={t:'word'};
+        add(T.id,kind,o,gram,label);
+      }
+    }
+  }
+  for(const [l,tx,cs] of PREPS)add('prep','R',null,{t:'frame',tx,cs},l);
+  dictItems=out;
+}
+const THEMES=[...DICT.map(t=>({id:t.id,name:t.name,e:t.e})),{id:'prep',name:'Предлоги',e:'📍'}];
+const ENGINE=4;
+
+/* =====================================================================
+   ХРАНИЛИЩЕ
+   ===================================================================== */
+let _db;
+function openDB(){return new Promise((res,rej)=>{
+  const r=indexedDB.open('aac-v1',1);
+  r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('items',{keyPath:'id'});d.createObjectStore('kv',{keyPath:'k'});};
+  r.onsuccess=()=>{_db=r.result;res()};r.onerror=()=>rej(r.error);
+});}
+const tx=(s,m='readonly')=>_db.transaction(s,m).objectStore(s);
+const prom=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const dbAll=s=>prom(tx(s).getAll());
+const dbPut=(s,o)=>prom(tx(s,'readwrite').put(o));
+const dbDel=(s,k)=>prom(tx(s,'readwrite').delete(k));
+const dbClear=s=>prom(tx(s,'readwrite').clear());
+const setKV=(k,v)=>dbPut('kv',{k,v});
+
+let items=[],cats=[],settings={...DEFAULTS},bigrams={},trigrams={},phrases=[];
+let sentence=[],spoken=false,curCat=null,edit=false,editing=null,pendingImg=undefined;
+let maxc=[],calNotes={},calY=null,calM=0,calSel=null,calLast=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const litItem=id=>{const t=id.slice(4);return{id,label:t,say:t,emoji:/\d/.test(t)?'📅':'',img:null,gram:{t:'word',lit:1},count:0};};
+const byId=id=>String(id).startsWith('lit:')?litItem(id):items.find(i=>i.id===id)||dictItems.find(i=>i.id===id);
+
+async function applyPack(){
+  const legacy=new Set();
+  for(const c in LEGACY)LEGACY[c].split('|').forEach(x=>{const i=x.indexOf(' ');legacy.add(c+'|'+x.slice(i+1)+'|'+x.slice(0,i));});
+  const ids=SEED_CATS.map(c=>c[0]),matched=new Set();
+  const head=SEED_CATS.map(([id,emoji,name])=>cats.find(c=>c.id===id)||{id,emoji,name});
+  let order=items.reduce((m,i)=>Math.max(m,i.order||0),0),k=0;
+  for(const cat of ids)for(const s of PACK[cat]||[]){
+    const ex=items.find(i=>i.cat===cat&&i.label===s.l);
+    if(ex){matched.add(ex.id);if(!ex.gram){ex.gram=s.gram;ex.say=s.say||'';await dbPut('items',ex);}}
+    else{const it={id:uid()+(k++),label:s.l,say:s.say||'',emoji:s.e,img:null,cat,gram:s.gram,count:0,order:++order};items.push(it);matched.add(it.id);await dbPut('items',it);}
+  }
+  for(const it of [...items]){
+    if(!it.gram&&!it.img&&!matched.has(it.id)&&legacy.has(it.cat+'|'+it.label+'|'+it.emoji)){await dbDel('items',it.id);items=items.filter(x=>x!==it);}
+  }
+  for(const it of items){ /* свои плитки в «Люди» — это имена: склоняем автоматически */
+    if(!it.gram&&it.cat==='people'){it.gram={t:'noun',g:/[ая]$/i.test(it.label)?'f':'m',an:1,pn:1};await dbPut('items',it);}
+  }
+  const rest=cats.filter(c=>!ids.includes(c.id)&&items.some(i=>i.cat===c.id));
+  cats=[...head,...rest];await setKV('cats',cats);await setKV('engine',ENGINE);
+  items.sort((a,b)=>a.order-b.order);
+}
+async function load(){await openDB();await load2();}
+async function load2(){
+  const kv=Object.fromEntries((await dbAll('kv')).map(o=>[o.k,o.v]));
+  cats=kv.cats||[];settings={...DEFAULTS,...(kv.settings||{})};if(settings.icv!==2){settings.ts=85;settings.icv=2;}if(![170,85,65].includes(settings.ts))settings.ts=85;if(settings.nokb===undefined)settings.nokb=innerHeight<520;bigrams=kv.bigrams||{};trigrams=kv.trigrams||{};phrases=kv.phrases||[];calNotes=kv.cal||{};dcnt=kv.dcnt||{};maxc=kv.maxc||[];
+  items=await dbAll('items');items.sort((a,b)=>a.order-b.order);
+  if(kv.engine!==ENGINE)await applyPack();
+  buildDict();
+}
+let saveT;
+function saveLearning(){clearTimeout(saveT);saveT=setTimeout(()=>{setKV('bigrams',bigrams);setKV('trigrams',trigrams);setKV('phrases',phrases)},400);}
+
+/* =====================================================================
+   РЕЧЬ
+   ===================================================================== */
+const hasTTS='speechSynthesis' in window;
+const ruVoices=()=>hasTTS?speechSynthesis.getVoices().filter(v=>/^ru/i.test(v.lang||'')):[];
+function voiceScore(v){
+  const n=lc(v.name);let sc=0;
+  if(/natural|neural|enhanced|premium|siri|нейро/.test(n))sc+=60;
+  if(/yandex|яндекс|алиса|alice/.test(n))sc+=45;
+  if(/google/.test(n))sc+=35;
+  if(/milena|yuri|svetlana|dmitry|pavel|irina|katya|alena|alyona|tatyana|elena|anna|maxim|aleksandr|ekaterina|юрий|милена|светлана|дмитрий|павел|ирина|екатерина|алёна|татьяна|елена|анна|максим/.test(n))sc+=20;
+  if(v.localService)sc+=15;       /* работает без интернета */
+  if(/espeak|robot|compact/.test(n))sc-=60;
+  return sc;
+}
+function pickVoice(){
+  const list=ruVoices();if(!list.length)return null;
+  if(settings.voice){const f=list.find(v=>v.voiceURI===settings.voice||v.name===settings.voice);if(f)return f;}
+  return [...list].sort((a,b)=>voiceScore(b)-voiceScore(a))[0];
+}
+let speakT;
+let spkId=0;
+const recKey=t=>'rec:'+nz(t).replace(/[.!?…\s]+$/,'').trim();
+async function recGetBlob(t){try{const r=await prom(tx('kv').get(recKey(t)));return r?r.v:null;}catch(e){return null;}}
+const aud=new Audio();
+let audUrl=null;
+function playBlob(b){if(audUrl)URL.revokeObjectURL(audUrl);audUrl=URL.createObjectURL(b);aud.src=audUrl;aud.volume=settings.vol;aud.play().catch(()=>{});}
+/* iOS: звук разрешён только после первого касания — «разблокируем» озвучку и аудио */
+let unlocked=false;
+function unlockAudio(){
+  if(unlocked)return;unlocked=true;
+  try{aud.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';aud.play().catch(()=>{});}catch(e){}
+  try{if(hasTTS){const u=new SpeechSynthesisUtterance('');u.volume=0;speechSynthesis.speak(u);}}catch(e){}
+}
+document.addEventListener('pointerdown',unlockAudio,{once:true,capture:true});
+document.addEventListener('touchend',unlockAudio,{once:true,capture:true});
+function speak(t){
+  if(!t)return;const my=++spkId;
+  clearTimeout(speakT);try{aud.pause();}catch(e){}if(hasTTS)speechSynthesis.cancel();
+  recGetBlob(t).then(b=>{if(my!==spkId)return;if(b)playBlob(b);else speakEngine(t);});
+}
+function speakBrowser(t){
+  clearTimeout(speakT);
+  if(!hasTTS)return;
+  speechSynthesis.cancel();
+  /* без паузы после cancel() Chrome иногда «глотает» следующую фразу */
+  speakT=setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(t);
+    u.lang='ru-RU';u.rate=settings.rate;u.pitch=settings.pitch;u.volume=settings.vol;
+    const v=pickVoice();if(v){u.voice=v;u.lang=v.lang||'ru-RU';}
+    speechSynthesis.speak(u);
+  },60);
+}
+function speakEngine(t){
+  if(!t)return;
+  clearTimeout(speakT);
+  try{aud.pause();}catch(e){}
+  if(hasTTS)speechSynthesis.cancel();
+  speakBrowser(t);
+}
+function fillVoices(){
+  const sel=$('sVoice');if(!sel)return;
+  const list=ruVoices().sort((a,b)=>voiceScore(b)-voiceScore(a));
+  sel.innerHTML='<option value="">Авто — лучший из найденных</option>'+list.map(v=>`<option value="${esc(v.voiceURI||v.name)}">${esc(v.name)}${v.localService?'':' (нужен интернет)'}</option>`).join('');
+  sel.value=settings.voice&&list.some(v=>(v.voiceURI||v.name)===settings.voice)?settings.voice:'';
+  const cur=pickVoice();
+  $('sVoiceInfo').textContent=!hasTTS?'В этом браузере нет озвучки. Попробуй Chrome.':
+    list.length?`Найдено русских голосов: ${list.length}. Сейчас говорит: ${cur?cur.name:'—'}.`:
+    'Русских голосов не найдено. Android: Настройки → Система → Язык и ввод → Синтез речи → Google → Установить голосовые данные → Русский. iPhone/iPad: Настройки → Универсальный доступ → Устный контент → Голоса → Русский (лучше «Улучшенное качество»). После установки перезапусти страницу.';
+}
+if(hasTTS){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>fillVoices();}
+const sentenceText=()=>compose(sentence);
+
+/* =====================================================================
+   ОТРИСОВКА
+   ===================================================================== */
+function picHTML(it){if(!it.img&&!it.emoji)return '';return it.img?`<div class="pic" style="background-image:url(${it.img})"></div>`:`<div class="pic">${esc(it.emoji||'🔹')}</div>`;}
+function tileHTML(it){const t=typ(it);return `<button class="tile t-${t}${!it.img&&!it.emoji?' nopic':''}" data-id="${it.id}">${picHTML(it)}<div class="lbl">${esc(it.label)}</div></button>`;}
+function render(){
+  document.documentElement.style.setProperty('--ts',settings.ts+'px');
+  document.body.classList.toggle('left',settings.left);
+  document.body.classList.toggle('edit',edit);
+  renderSentence();renderSugg();renderTabs();renderGrid();
+}
+function renderSentence(){
+  const s=$('sentence');
+  if(!sentence.length){s.innerHTML='<span class="hint">Нажимай картинки — здесь соберётся фраза</span>';return;}
+  const pv=sentenceText();
+  s.innerHTML=`<div class="pv">${esc(pv)}</div>`+sentence.map((id,i)=>{const it=byId(id);return it?`<div class="chip" data-i="${i}">${picHTML(it)}<span>${esc(it.label)}</span></div>`:''}).join('');
+}
+const VERBS_WANT=['Поесть','Выпить','Поспать','Отдохнуть','Погулять','Посмотреть','Позвонить','Пойти','Поехать','Купить','Поговорить'];
+const SEEDS={
+ '^':['Я хочу','Мне нужен…','У меня болит…','Дайте','Принесите','Позвоните','Покажите','Да','Нет','Спасибо'],
+ 'Я хочу':VERBS_WANT,'Я не хочу':VERBS_WANT,'Я буду':['Поесть','Выпить','Отдохнуть','Поспать'],
+ 'Я могу':['cat:act'],'Я не могу':['cat:act'],'Я готов':['cat:act'],
+ 'Я люблю':['cat:people','cat:food'],'Мне нравится…':['cat:food','cat:things'],
+ 'Мне нужен…':['cat:med','cat:things','cat:drink'],'У меня болит…':['cat:pain'],
+ 'Дайте':['cat:drink','cat:food','cat:things'],'Принесите':['cat:drink','cat:food','cat:things'],
+ 'Выпить':['cat:drink'],'Попить':['cat:drink'],'Поесть':['cat:food'],'Купить':['cat:things','cat:food'],'Посмотреть':['cat:things'],'Смотреть':['cat:things'],'Читать':['cat:things'],'Позвонить':['cat:people'],'Взять':['cat:things'],'Заказать':['cat:food','cat:drink'],'Открыть':['cat:things'],'Включить':['cat:things'],
+ 'Покажите':['cat:things'],'Позвоните':['cat:people'],'Позовите':['cat:people','cat:med'],'Вызовите':['Врач','Скорая'],
+ 'Я иду в':['cat:city'],'Я в':['cat:city'],'Я на':['cat:city'],'В (где)':['cat:city'],'В (куда)':['cat:city'],'На (где)':['cat:city'],'На (куда)':['cat:city'],
+ 'У меня':['Есть','Нет','cat:pain'],'У тебя':['Есть','Нет'],'У вас':['Есть','Нет'],'Есть':['cat:food','cat:things'],'Нет':['cat:food','cat:things','cat:drink']
+};
+function topNext(){
+  const have=sentence.length&&!spoken;
+  const last=have?sentence[sentence.length-1]:'^',prev2=have&&sentence.length>1?sentence[sentence.length-2]:null;
+  const lastIt=have?byId(last):null;
+  const all=[...items,...dictItems];
+  const sc={};const add=(id,v)=>{if(id&&byId(id))sc[id]=(sc[id]||0)+v;};
+  /* 1. выученное: тройки и пары */
+  if(prev2){const t=trigrams[prev2+'|'+last]||{};for(const id in t)add(id,t[id]*300);}
+  const m=bigrams[last]||{};for(const id in m)add(id,m[id]*100);
+  /* 2. стартовые связки */
+  const key=have&&lastIt?lastIt.label:'^';
+  (SEEDS[key]||[]).forEach((x,r)=>{
+    if(x.startsWith('cat:')){
+      all.filter(i=>i.cat===x.slice(4)).sort((a,b)=>(b.count||0)-(a.count||0)||(a.order||0)-(b.order||0)).slice(0,12).forEach((i,k)=>add(i.id,30-k));
+    }else{const it=all.find(i=>i.label===x);if(it)add(it.id,50-r);}
+  });
+  /* 3. грамматика: после прилагательного/числа/глагола с падежом ждём существительное */
+  const ty=lastIt?typ(lastIt):'';
+  if(have&&(ty==='adj'||ty==='num'||(ty==='verb'&&lastIt.gram&&lastIt.gram.gov)))
+    all.filter(i=>typ(i)==='noun'&&i.count>0).forEach(i=>add(i.id,10+Math.min(i.count,9)));
+  let ids=Object.keys(sc).filter(id=>id!==last).sort((a,b)=>sc[b]-sc[a]).slice(0,8);
+  if(ids.length<8){
+    const rest=all.filter(i=>i.id!==last&&!ids.includes(i.id)&&i.count>0).sort((a,b)=>b.count-a.count).slice(0,8-ids.length).map(i=>i.id);
+    ids=ids.concat(rest);
+  }
+  return ids;
+}
+function renderSugg(){
+  const ids=topNext();
+  $('sugg').innerHTML=ids.length?`<span class="cap">Дальше:</span>`+ids.map(id=>tileHTML(byId(id))).join(''):'<span class="cap">Подсказки появятся, когда вы начнёте пользоваться.</span>';
+}
+function renderTabs(){
+  const st=cats.filter(c=>c.id==='start'),oc=cats.filter(c=>c.id!=='start');
+  const t=[...st,{id:'_freq',emoji:'⭐',name:'Часто'},{id:'_phr',emoji:'💬',name:'Фразы'},{id:'_sc',emoji:'🎭',name:'Сценарии'},{id:'_cal',emoji:'🗓️',name:'Календарь'},{id:'_dict',emoji:'📖',name:'Словарь'},{id:'_verb',emoji:'🏃',name:'Глаголы'},...oc];
+  if(!t.find(c=>c.id===curCat))curCat=cats[0]?cats[0].id:'_freq';
+  document.body.classList.toggle('nokb',!!settings.nokb);
+  document.body.classList.toggle('dk',curCat==='_dict'||curCat==='_verb');
+  $('tabs').innerHTML=t.map(c=>`<button data-cat="${c.id}" class="${c.id===curCat?'on':''}">${esc(c.emoji||'')} ${esc(c.name)}</button>`).join('');
+}
+let dq='',dth=null,dlim=150;
+const KROWS=['йцукенгшщзхъ','фывапролджэ','ячсмитьбю'];
+function buildKb(){
+  $('kb').innerHTML=KROWS.map((r,i)=>`<div class="kr">${[...r].map(c=>`<button data-k="${c}">${c}</button>`).join('')}${i==2?'<button data-k="ё">ё</button><button data-k="<" class="w">⌫</button>':''}</div>`).join('')+'<div class="kr"><button data-k=" " class="w">пробел</button><button data-k="#">✕ стереть всё</button></div>';
+}
+function dkey(k){
+  if(k==='<')dq=dq.slice(0,-1);else if(k==='#')dq='';else dq+=k;
+  dth=null;dlim=150;renderGrid();$('grid').scrollTop=0;
+}
+function dictHTML(vb){
+  const pool=[...items,...dictItems].filter(i=>(typ(i)==='verb')===vb&&!(i.gram&&i.gram.lit));
+  let h=`<div class="dq"><span id="dqt">${dq?esc(dq):'<i>Печатай начало слова…</i>'}</span>${dq?'<button data-dq="clr">✕</button>':''}<button data-kbt="1">${settings.nokb?'⌨ Показать':'⌨ Скрыть'}</button></div>`;
+  const q=nz(dq.trim());
+  if(q){
+    const hit=pool.filter(i=>nz(i.label).includes(q));
+    const sc=i=>{const l=nz(i.label);return (l.startsWith(q)?0:l.includes(' '+q)?1:2)*1000+(i.d?100:0)+l.length;};
+    hit.sort((a,b)=>sc(a)-sc(b)||a.label.localeCompare(b.label,'ru'));
+    h+=hit.slice(0,60).map(tileHTML).join('')||'<div class="empty">Ничего не найдено</div>';
+    return h;
+  }
+  if(dth){
+    let list=dth==='*'?pool:pool.filter(i=>i.th===dth);
+    list=[...list].sort((a,b)=>a.label.localeCompare(b.label,'ru'));
+    const nm=dth==='*'?'Все по алфавиту':(THEMES.find(t=>t.id===dth)||{}).name;
+    h+=`<button class="thm wide" data-thm="">◀ Назад к темам — ${esc(nm||'')}</button>`;
+    h+=list.slice(0,dlim).map(tileHTML).join('');
+    if(list.length>dlim)h+=`<button class="more" data-more="1">Показать ещё (${list.length-dlim})</button>`;
+    return h;
+  }
+  const cnt={};dictItems.forEach(i=>{if((typ(i)==='verb')===vb)cnt[i.th]=(cnt[i.th]||0)+1;});
+  h+=`<button class="thm wide" data-thm="*">🔤 Все по алфавиту (${pool.length})</button>`;
+  h+=THEMES.filter(t=>cnt[t.id]).map(t=>`<button class="thm" data-thm="${t.id}"><span class="e">${t.e}</span>${esc(t.name)}<small>${cnt[t.id]}</small></button>`).join('');
+  return h;
+}
+function renderGrid(){
+  const g=$('grid');let h='';
+  if(curCat==='_cal'){g.innerHTML=calHTML();return;}
+  if(curCat==='_sc'){g.innerHTML=scHTML();return;}
+  if(curCat==='_dict'||curCat==='_verb'){g.innerHTML=dictHTML(curCat==='_verb');return;}
+  if(curCat==='_phr'){
+    const ps=[...phrases].sort((a,b)=>b.count-a.count||b.last-a.last);
+    h=ps.length?ps.map(p=>{
+      const pics=p.ids.map(id=>byId(id)).filter(Boolean).map(picHTML).join('');
+      return `<button class="tile phrase" data-phrase="${esc(p.text)}"><div class="ps">${pics}</div><div class="lbl">${esc(p.text)}</div>${edit?`<span data-pdel="${esc(p.text)}" style="font-size:28px;margin-left:auto">🗑</span>`:`<span class="cnt">×${p.count}</span>`}</button>`;
+    }).join(''):'<div class="empty">Здесь будут сохраняться фразы, которые вы произнесли. Потом их можно говорить одним нажатием.</div>';
+  }else{
+    let list;
+    if(curCat==='_freq')list=[...items,...dictItems].filter(i=>i.count>0).sort((a,b)=>b.count-a.count).slice(0,24);
+    else{list=items.filter(i=>i.cat===curCat);if(settings.sort)list=[...list].sort((a,b)=>b.count-a.count||a.order-b.order);}
+    h=list.map(tileHTML).join('');
+    if(!list.length)h='<div class="empty">'+(curCat==='_freq'?'Пока пусто — самые частые слова появятся здесь.':'Пусто. Удерживай ⚙ и добавь плитку.')+'</div>';
+    if(edit&&curCat[0]!=='_')h+=`<button class="tile addtile" id="addTile"><div class="pic">➕</div><div class="lbl">Добавить</div></button>`;
+  }
+  g.innerHTML=h;
+}
+
+/* =====================================================================
+   ДЕЙСТВИЯ
+   ===================================================================== */
+const THEMECAT={ppl:'people',health:'med',body:'pain',feel:'feel',food:'food',veg:'food',city:'city',trans:'city',time:'when'};
+function promote(it){
+  if(!it||!it.d)return it;
+  const ty=typ(it);
+  let cat=ty==='verb'?'act':ty==='adj'?'adj':ty==='noun'?(THEMECAT[it.th]||'things'):'start';
+  if(!cats.some(c=>c.id===cat))cat=cats[0].id;
+  const n={...it,cat,order:items.reduce((m,i)=>Math.max(m,i.order||0),0)+1};delete n.d;
+  dictItems=dictItems.filter(x=>x!==it);items.push(n);dbPut('items',n);
+  return n;
+}
+function pushWord(id){
+  if(spoken&&settings.auto)sentence=[];
+  spoken=false;
+  let it=byId(id);if(!it)return;
+  it=promote(it);
+  const prev=sentence.length?sentence[sentence.length-1]:'^';
+  if(!String(id).startsWith('lit:')&&!String(prev).startsWith('lit:')){
+    (bigrams[prev]=bigrams[prev]||{})[id]=(bigrams[prev][id]||0)+1;
+    const p2=sentence.length>1?sentence[sentence.length-2]:null;
+    if(!spoken&&p2&&!String(p2).startsWith('lit:')&&prev!=='^'){const k=p2+'|'+prev;(trigrams[k]=trigrams[k]||{})[id]=(trigrams[k][id]||0)+1;}
+    it.count=(it.count||0)+1;dbPut('items',it);
+  }
+  sentence.push(id);
+  if(settings.tap)speak(it.say||it.label);
+  saveLearning();renderSentence();renderSugg();
+  if(curCat==='_freq')renderGrid();
+}
+function doSay(){
+  const t=sentenceText();if(!t)return;
+  speak(t);
+  const ex=phrases.find(p=>p.text===t);
+  if(ex){ex.count++;ex.last=Date.now();}else phrases.push({text:t,ids:[...sentence],count:1,last:Date.now()});
+  if(phrases.length>200){phrases.sort((a,b)=>b.count-a.count||b.last-a.last);phrases.length=200;}
+  spoken=true;saveLearning();renderSugg();
+  if(curCat==='_phr')renderGrid();
+}
+function sayPhrase(text){
+  const p=phrases.find(p=>p.text===text);if(!p)return;
+  speak(p.text);p.count++;p.last=Date.now();
+  sentence=p.ids.filter(id=>byId(id));spoken=true;saveLearning();renderSentence();renderSugg();renderGrid();
+}
+document.addEventListener('click',e=>{
+  const del=e.target.closest('[data-pdel]');
+  if(del){e.stopPropagation();const t=del.dataset.pdel;phrases=phrases.filter(p=>p.text!==t);saveLearning();renderGrid();return;}
+  const ca=e.target.closest('[data-cal]');if(ca){calAct(ca.dataset.cal);return;}
+  const cd=e.target.closest('.cd');if(cd){calPick(cd.dataset.d);return;}
+  const lt=e.target.closest('[data-lit]');if(lt){calInsert(lt.dataset.lit);return;}
+  if(e.target.closest('[data-kbt]')){settings.nokb=!settings.nokb;setKV('settings',settings);document.body.classList.toggle('nokb',!!settings.nokb);renderGrid();return;}
+  const sc=e.target.closest('[data-sc]');if(sc){scAct(sc.dataset.sc);return;}
+  const sa=e.target.closest('[data-sa]');if(sa){scSay(sa.dataset.sa);return;}
+  const kk=e.target.closest('[data-k]');if(kk){dkey(kk.dataset.k);return;}
+  const th=e.target.closest('[data-thm]');if(th){dth=th.dataset.thm||null;dlim=150;renderGrid();$('grid').scrollTop=0;return;}
+  if(e.target.closest('[data-dq]')){dq='';renderGrid();return;}
+  if(e.target.closest('[data-more]')){dlim+=150;renderGrid();return;}
+  const t=e.target.closest('.tile');
+  if(t){
+    if(t.id==='addTile'){openItem(null);return;}
+    if(t.dataset.phrase!==undefined){sayPhrase(t.dataset.phrase);return;}
+    if(edit){const bi=byId(t.dataset.id);if(!bi||!bi.d)openItem(t.dataset.id);return;}
+    pushWord(t.dataset.id);
+    if((curCat==='_dict'||curCat==='_verb')&&dq){dq='';renderGrid();}
+    return;
+  }
+  const c=e.target.closest('.chip');
+  if(c){sentence.splice(+c.dataset.i,1);renderSentence();renderSugg();return;}
+  const tab=e.target.closest('#tabs button');
+  if(tab){curCat=tab.dataset.cat;dq='';dth=null;dlim=150;renderTabs();renderGrid();$('grid').scrollTop=0;}
+});
+$('say').onclick=doSay;
+$('back').onclick=()=>{spoken=false;sentence.pop();renderSentence();renderSugg();};
+$('clear').onclick=()=>{sentence=[];spoken=false;renderSentence();renderSugg();};
+function mxRender(){
+  $('mxPhrase').textContent='«'+sentenceText()+'»';
+  $('mxList').innerHTML=maxc.length?maxc.map(c=>`<div class="mxc"><button class="btn" data-mx="${c.id}">💬 ${esc(c.name)}</button><button class="btn x" data-mxdel="${c.id}">🗑</button></div>`).join(''):'<div class="small" style="font-size:17px">Контактов пока нет — добавь ниже.</div>';
+}
+async function mxCopy(t){
+  try{await navigator.clipboard.writeText(t);return true;}catch(e){}
+  const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy');}catch(e){}ta.remove();return ok;
+}
+$('maxb').onclick=()=>{if(!sentenceText())return;$('mxMsg').textContent='';mxRender();$('mMax').classList.add('on');};
+$('mxClose').onclick=()=>$('mMax').classList.remove('on');
+$('mxAdd').onclick=async()=>{
+  const name=$('mxName').value.trim();let link=$('mxLink').value.trim();
+  if(!name){$('mxMsg').textContent='Впиши имя';return;}
+  if(link&&!/^https?:\/\//i.test(link))link='https://'+link;
+  maxc.push({id:uid(),name,link});await setKV('maxc',maxc);$('mxName').value='';$('mxLink').value='';$('mxMsg').textContent='';mxRender();
+};
+$('mxList').onclick=async e=>{
+  const d=e.target.closest('[data-mxdel]');
+  if(d){maxc=maxc.filter(c=>c.id!==d.dataset.mxdel);await setKV('maxc',maxc);mxRender();return;}
+  const b=e.target.closest('[data-mx]');if(!b)return;
+  const c=maxc.find(x=>x.id===b.dataset.mx),t=sentenceText();if(!c||!t)return;
+  const pr=mxCopy(t);
+  if(c.link)window.open(c.link,'_blank');
+  const ok=await pr;
+  $('mxMsg').textContent=(ok?'Фраза скопирована. ':'')+(c.link?'Открываю чат с контактом «'+c.name+'» — вставь фразу и отправь.':'У контакта нет ссылки — открой его чат в Max и вставь фразу.');
+};
+$('mxShare').onclick=async()=>{
+  const t=sentenceText();if(!t)return;
+  if(navigator.share){try{await navigator.share({text:t});return;}catch(e){if(e&&e.name==='AbortError')return;}}
+  const ok=await mxCopy(t);$('mxMsg').textContent=ok?'Фраза скопирована — вставь её в нужный чат.':'Не удалось скопировать.';
+};
+
+let gt;const gear=$('gear');
+gear.addEventListener('pointerdown',e=>{e.preventDefault();clearTimeout(gt);gt=setTimeout(()=>{gt=null;setEdit(!edit);},1000);});
+gear.addEventListener('pointerup',()=>{if(gt){clearTimeout(gt);gt=null;if(edit)setEdit(false);else openSettings();}});
+gear.addEventListener('pointerleave',()=>{clearTimeout(gt);gt=null;});
+gear.addEventListener('contextmenu',e=>e.preventDefault());
+function setEdit(v){edit=v;render();if(navigator.vibrate)navigator.vibrate(40);}
+$('eDone').onclick=()=>setEdit(false);
+$('eAdd').onclick=()=>openItem(null);
+$('eSet').onclick=openSettings;
+$('eCat').onclick=async()=>{
+  const name=prompt('Название новой вкладки:');if(!name)return;
+  const emoji=prompt('Значок-эмодзи (можно пропустить):','📁')||'📁';
+  const c={id:'c'+uid(),name:name.trim(),emoji};cats.push(c);await setKV('cats',cats);curCat=c.id;render();
+};
+$('eRen').onclick=async()=>{
+  const c=cats.find(c=>c.id===curCat);if(!c)return;
+  const name=prompt('Новое название вкладки:',c.name);if(!name)return;
+  c.name=name.trim();await setKV('cats',cats);render();
+};
+$('eDel').onclick=async()=>{
+  const c=cats.find(c=>c.id===curCat);if(!c)return;
+  if(!confirm(`Удалить вкладку «${c.name}» вместе со всеми её плитками?`))return;
+  for(const it of items.filter(i=>i.cat===c.id))await dbDel('items',it.id);
+  items=items.filter(i=>i.cat!==c.id);cats=cats.filter(x=>x.id!==c.id);await setKV('cats',cats);
+  sentence=sentence.filter(id=>byId(id));curCat=null;render();
+};
+
+/* =====================================================================
+   РЕДАКТОР ПЛИТКИ
+   ===================================================================== */
+const defaultType=()=>({act:'verb',adj:'adj',start:'frame',quest:'frame',ans:'word',feel:'word',date:'word',num:'word',pron:'word'}[curCat]||(/^_/.test(curCat||'')?'noun':'noun'));
+function showSec(){const t=$('fType').value;
+  $('secNoun').style.display=t==='noun'?'block':'none';$('secVerb').style.display=t==='verb'?'block':'none';
+  $('secFrame').style.display=t==='frame'?'block':'none';$('secWord').style.display=t==='word'?'block':'none';}
+function autoPrev(){
+  if($('fType').value!=='noun'){$('fAuto').textContent='';return;}
+  const it={label:$('fLabel').value.trim()||'слово',say:'',gram:{g:$('fGender').value,an:$('fAn').checked,id:$('fIdecl').checked,f:''}};
+  const f=nounForms(it);
+  $('fAuto').textContent=it.gram.g==='p'?'Множественное число: впиши формы ниже вручную.':`Авто: род. ${f.gen} · вин. ${f.acc} · дат. ${f.dat} · твор. ${f.inst} · предл. ${f.prep}`;
+}
+['fLabel','fGender','fAn','fIdecl','fType'].forEach(id=>{$(id).addEventListener('input',()=>{showSec();autoPrev();});$(id).addEventListener('change',()=>{showSec();autoPrev();});});
+function prevUpdate(){
+  const p=$('prev');
+  if(pendingImg){p.style.backgroundImage=`url(${pendingImg})`;p.textContent='';}
+  else{p.style.backgroundImage='';p.textContent=(editing&&editing.emoji)||'🔹';}
+}
+function openItem(id){
+  editing=id?byId(id):null;
+  pendingImg=editing?editing.img:null;
+  const g=editing&&editing.gram?editing.gram:null;
+  $('mItemT').textContent=editing?'Изменить плитку':'Новая плитка';
+  $('fLabel').value=editing?editing.label:'';
+  $('fSay').value=editing?editing.say:'';
+  $('fType').value=editing?(g?g.t==='pron'||g.t==='num'||g.t==='mark'?'word':g.t:'word'):defaultType();
+  $('fGender').value=(g&&g.g)||'m';$('fAn').checked=!!(g&&g.an);$('fPn').checked=!!(g&&g.pn);$('fIdecl').checked=!!(g&&g.id);$('fQt').checked=!!(g&&g.qt);
+  $('fForms').value=(g&&g.f)||'';$('fGov').value=(g&&g.gov)||'';
+  $('fTx').value=(g&&g.tx)||'';$('fAg').value=(g&&g.ag)||'';$('fCs').value=(g&&g.cs)||'nom';$('fQm').value=(g&&g.qm)||'';
+  $('fLead').value=(g&&g.ld==='1')?'1':'';$('fPl').checked=!!(g&&g.pl);
+  $('fCat').innerHTML=cats.map(c=>`<option value="${c.id}">${esc(c.emoji)} ${esc(c.name)}</option>`).join('');
+  $('fCat').value=editing?editing.cat:(curCat&&curCat[0]!=='_'?curCat:cats[0].id);
+  ['fDel','fLeft','fRight'].forEach(x=>$(x).style.display=editing?'':'none');
+  if(!editing&&curCat==='people')$('fAn').checked=true;
+  showSec();autoPrev();prevUpdate();$('mItem').classList.add('on');
+}
+$('fPhoto').onclick=()=>$('fFile').click();
+$('fNoPhoto').onclick=()=>{pendingImg=null;prevUpdate();};
+$('fFile').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{pendingImg=await fileToSquare(f,420);prevUpdate();}catch(err){alert('Не удалось открыть картинку');}
+};
+async function fileToSquare(file,size,contain){
+  let bmp;
+  try{bmp=await createImageBitmap(file,{imageOrientation:'from-image'});}
+  catch(_){bmp=await new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=URL.createObjectURL(file);});}
+  const w=bmp.width||bmp.naturalWidth,h=bmp.height||bmp.naturalHeight,s=Math.min(w,h);
+  const c=document.createElement('canvas');c.width=c.height=size;
+  const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,size,size);
+  if(contain){const k=size*0.92/Math.max(w,h),dw=w*k,dh=h*k;x.drawImage(bmp,(size-dw)/2,(size-dh)/2,dw,dh);}
+  else x.drawImage(bmp,(w-s)/2,(h-s)/2,s,s,0,0,size,size);
+  return c.toDataURL('image/jpeg',0.82);
+}
+$('fCancel').onclick=()=>$('mItem').classList.remove('on');
+function buildGram(){
+  const t=$('fType').value;
+  if(t==='noun')return{t:'noun',g:$('fGender').value,an:$('fAn').checked||undefined,pn:$('fPn').checked||undefined,id:$('fIdecl').checked||undefined,qt:$('fQt').checked||undefined,f:$('fForms').value.trim()||undefined,gp:(editing&&editing.gram&&editing.gram.gp)||undefined};
+  if(t==='verb')return{t:'verb',gov:$('fGov').value||undefined};
+  if(t==='adj')return{t:'adj'};
+  if(t==='frame')return{t:'frame',tx:$('fTx').value.trim()||lc($('fLabel').value.trim()),cs:$('fCs').value,qm:$('fQm').value||undefined,ag:$('fAg').value.trim()||undefined};
+  const old=editing&&editing.gram&&['word','pron','num','mark'].includes(editing.gram.t)?editing.gram:{};
+  return{...old,t:old.t||'word',ld:$('fLead').value||undefined,pl:$('fPl').checked||undefined};
+}
+$('fSave').onclick=async()=>{
+  const label=$('fLabel').value.trim();
+  if(!label){alert('Напиши подпись');return;}
+  const data={label,say:$('fSay').value.trim(),img:pendingImg||null,cat:$('fCat').value,gram:buildGram()};
+  if(editing){Object.assign(editing,data);editing.auto=pendingImg===editing.img?editing.auto:undefined;await dbPut('items',editing);}
+  else{
+    const maxO=items.reduce((m,i)=>Math.max(m,i.order||0),0);
+    const it={id:uid(),count:0,order:maxO+1,emoji:'🔹',...data};items.push(it);await dbPut('items',it);
+  }
+  $('mItem').classList.remove('on');render();
+};
+$('fDel').onclick=async()=>{
+  if(!editing||!confirm(`Удалить «${editing.label}»?`))return;
+  await dbDel('items',editing.id);items=items.filter(i=>i!==editing);sentence=sentence.filter(id=>id!==editing.id);
+  $('mItem').classList.remove('on');render();
+};
+async function move(dir){
+  if(!editing)return;
+  const peers=items.filter(i=>i.cat===editing.cat).sort((a,b)=>a.order-b.order);
+  const k=peers.indexOf(editing),o=peers[k+dir];if(!o)return;
+  [editing.order,o.order]=[o.order,editing.order];
+  await dbPut('items',editing);await dbPut('items',o);
+  items.sort((a,b)=>a.order-b.order);renderGrid();
+}
+$('fLeft').onclick=()=>move(-1);$('fRight').onclick=()=>move(1);
+
+/* =====================================================================
+   ARASAAC
+   ===================================================================== */
+const ARA_API='https://api.arasaac.org/v1/pictograms/',ARA_IMG='https://static.arasaac.org/pictograms/';
+const araKw=p=>(p.keywords&&p.keywords[0]&&p.keywords[0].keyword)||'';
+$('fAra').onclick=()=>{$('aQ').value=$('fLabel').value.trim();$('aRes').innerHTML='';$('aMsg').textContent='';$('mAra').classList.add('on');if($('aQ').value)araSearch();};
+$('aGo').onclick=araSearch;
+$('aQ').onkeydown=e=>{if(e.key==='Enter')araSearch();};
+$('aClose').onclick=()=>$('mAra').classList.remove('on');
+async function araSearch(){
+  const q=$('aQ').value.trim();if(!q)return;
+  $('aMsg').textContent='Ищу…';$('aRes').innerHTML='';
+  try{
+    const r=await fetch(ARA_API+$('aL').value+'/search/'+encodeURIComponent(q));
+    const d=r.ok?await r.json():[];
+    if(!Array.isArray(d)||!d.length){$('aMsg').textContent='Ничего не найдено. Попробуй другое слово или язык (English / Español — там база полнее).';return;}
+    $('aMsg').textContent='Нажми на нужную картинку';
+    $('aRes').innerHTML=d.slice(0,36).map(p=>`<button class="atile" data-ara="${p._id}" data-kw="${esc(araKw(p))}"><img loading="lazy" src="${ARA_IMG}${p._id}/${p._id}_300.png"><span>${esc(araKw(p))}</span></button>`).join('');
+  }catch(err){$('aMsg').textContent='Не получилось связаться с ARASAAC. Проверь интернет.';}
+}
+$('aRes').onclick=async e=>{
+  const b=e.target.closest('.atile');if(!b)return;
+  $('aMsg').textContent='Загружаю…';
+  try{
+    const id=b.dataset.ara,r=await fetch(`${ARA_IMG}${id}/${id}_500.png`);
+    if(!r.ok)throw 0;
+    pendingImg=await fileToSquare(await r.blob(),420,true);
+    if(!$('fLabel').value.trim()&&$('aL').value!=='es')$('fLabel').value=b.dataset.kw;
+    prevUpdate();$('mAra').classList.remove('on');
+  }catch(err){$('aMsg').textContent='Не удалось загрузить картинку.';}
+};
+/* автоподбор для всех слов без картинки */
+let pStop=false,pBusy=false;
+$('pStop').onclick=()=>{pStop=true;};
+$('pGo').onclick=async()=>{
+  if(pBusy)return;pBusy=true;pStop=false;
+  const list=items.filter(i=>!i.img&&['noun','verb','adj'].includes(typ(i)));
+  let ok=0,fail=0;
+  for(let k=0;k<list.length&&!pStop;k++){
+    const it=list[k];$('pMsg').textContent=`${k+1}/${list.length}: ${it.label} (найдено ${ok}, нет ${fail})`;
+    try{
+      const r=await fetch(ARA_API+$('pL').value+'/search/'+encodeURIComponent(it.label));
+      const d=r.ok?await r.json():[];
+      if(!Array.isArray(d)||!d.length){fail++;continue;}
+      const id=d[0]._id,ir=await fetch(`${ARA_IMG}${id}/${id}_500.png`);
+      if(!ir.ok){fail++;continue;}
+      it.img=await fileToSquare(await ir.blob(),420,true);it.auto=1;await dbPut('items',it);ok++;
+    }catch(err){fail++;if(fail>8&&ok===0){$('pMsg').textContent='Нет связи с ARASAAC. Проверь интернет и попробуй снова.';break;}}
+    await new Promise(r=>setTimeout(r,120));
+  }
+  if(!/Нет связи/.test($('pMsg').textContent))$('pMsg').textContent=`Готово: подобрано ${ok}, не найдено ${fail}.`+(pStop?' (остановлено)':'');
+  pBusy=false;render();
+};
+$('pUndo').onclick=async()=>{
+  const l=items.filter(i=>i.auto);
+  if(!l.length){$('pMsg').textContent='Авто-картинок нет.';return;}
+  if(!confirm(`Убрать ${l.length} автоматически подобранных картинок? Свои фото останутся.`))return;
+  for(const it of l){it.img=null;it.auto=undefined;await dbPut('items',it);}
+  $('pMsg').textContent='Авто-картинки убраны.';render();
+};
+
+/* =====================================================================
+   НАСТРОЙКИ / КОПИИ
+   ===================================================================== */
+function openSettings(){
+  $('sTs').value=settings.ts;$('sRate').value=settings.rate;
+  $('sTap').checked=settings.tap;$('sAuto').checked=settings.auto;$('sLeft').checked=settings.left;$('sSort').checked=settings.sort;
+  $('sRateV').textContent=settings.rate;
+  $('sPitch').value=settings.pitch;$('sVol').value=settings.vol;$('sPitchV').textContent=settings.pitch;$('sVolV').textContent=settings.vol;
+  fillVoices();
+  $('mSet').classList.add('on');
+}
+function applySettings(){
+  settings.ts=+$('sTs').value;settings.rate=+$('sRate').value;settings.pitch=+$('sPitch').value;settings.vol=+$('sVol').value;settings.voice=$('sVoice').value;
+  settings.tap=$('sTap').checked;settings.auto=$('sAuto').checked;settings.left=$('sLeft').checked;settings.sort=$('sSort').checked;
+  $('sRateV').textContent=settings.rate;$('sPitchV').textContent=settings.pitch;$('sVolV').textContent=settings.vol;
+  setKV('settings',settings);render();fillVoices();
+}
+['sTs','sRate','sPitch','sVol','sVoice','sTap','sAuto','sLeft','sSort'].forEach(id=>$(id).oninput=applySettings);
+$('sVoice').onchange=applySettings;
+$('sTest').onclick=()=>speak('Простите, как мне добраться до вокзала?');
+$('sClose').onclick=()=>$('mSet').classList.remove('on');
+$('sExp').onclick=()=>{
+  const blob=new Blob([JSON.stringify({v:2,engine:ENGINE,cats,items,bigrams,phrases,settings,cal:calNotes})],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='kommunikator-kopiya-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+};
+$('sImp').onclick=()=>$('sFile').click();
+$('sFile').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(!d.items||!d.cats)throw 0;
+    if(!confirm('Заменить текущие данные копией из файла?'))return;
+    await dbClear('items');for(const it of d.items)await dbPut('items',it);
+    await setKV('cats',d.cats);await setKV('bigrams',d.bigrams||{});await setKV('phrases',d.phrases||[]);await setKV('settings',d.settings||DEFAULTS);await setKV('cal',d.cal||{});
+    if(d.engine===ENGINE)await setKV('engine',ENGINE);else await dbDel('kv','engine');
+    await load2();curCat=null;sentence=[];$('mSet').classList.remove('on');render();
+  }catch(err){alert('Это не файл копии программы');}
+};
+$('sReset').onclick=async()=>{
+  if(!confirm('Удалить ВСЕ данные, включая свои фото, и вернуть начальный набор?'))return;
+  await dbClear('items');await dbClear('kv');await load2();curCat=null;sentence=[];$('mSet').classList.remove('on');setEdit(false);
+};
+
+
+/* =====================================================================
+   КАЛЕНДАРЬ
+   ===================================================================== */
+const ONES=['ноль','один','два','три','четыре','пять','шесть','семь','восемь','девять','десять','одиннадцать','двенадцать','тринадцать','четырнадцать','пятнадцать','шестнадцать','семнадцать','восемнадцать','девятнадцать','двадцать'];
+const WDP=['в воскресенье','в понедельник','во вторник','в среду','в четверг','в пятницу','в субботу'];
+const WDN=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+const WD=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const num2w=(n,fem)=>n>20?String(n):(fem&&n===2?'две':ONES[n]);
+const plr=(n,a,b,c)=>{const k=numClass(n);return k===1?a:k===2?b:c;};
+const sod=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
+const dayDiff=(d,now)=>Math.round((sod(d)-sod(now))/86400000);
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+function period(n){
+  if(n%7===0&&n<=28){const w=n/7;return w===1?'неделю':num2w(w,true)+' '+plr(w,'неделю','недели','недель');}
+  return num2w(n)+' '+plr(n,'день','дня','дней');
+}
+const monthsText=m=>m===1?'месяц':num2w(m)+' '+plr(m,'месяц','месяца','месяцев');
+function calPhrases(d,now=new Date()){
+  const df=dayDiff(d,now),out=[];
+  const rel={0:'сегодня',1:'завтра',2:'послезавтра','-1':'вчера','-2':'позавчера'}[df];
+  if(rel)out.push(rel);else if(df>2)out.push('через '+period(df));else out.push(period(-df)+' назад');
+  if(d.getDate()===now.getDate()){
+    const m=(d.getFullYear()-now.getFullYear())*12+d.getMonth()-now.getMonth();
+    if(df>2&&m>=1&&m<12)out.push('через '+monthsText(m));
+    else if(df>2&&m===12)out.push('через год');
+    else if(df<-2&&m<=-1&&m>-12)out.push(monthsText(-m)+' назад');
+  }
+  out.push(dateSay(d.getDate())+' '+MONTHS[d.getMonth()][1]);
+  out.push(WDP[d.getDay()]);
+  return out;
+}
+function calHTML(){
+  const now=new Date();if(calY===null){calY=now.getFullYear();calM=now.getMonth();}
+  const off=(new Date(calY,calM,1).getDay()+6)%7,dim=new Date(calY,calM+1,0).getDate(),today=ymd(now);
+  let cells='';for(let i=0;i<off;i++)cells+='<div></div>';
+  for(let d=1;d<=dim;d++){
+    const dt=new Date(calY,calM,d),k=ymd(dt),dow=dt.getDay();
+    const cls=['cd',k===today?'today':'',k===calSel?'sel':'',calNotes[k]?'note':'',dt<sod(now)?'past':'',(dow===0||dow===6)?'we':''].filter(Boolean).join(' ');
+    cells+=`<button class="${cls}" data-d="${k}">${d}</button>`;
+  }
+  let act;
+  if(calSel){
+    const [y,m,dd]=calSel.split('-').map(Number),dt=new Date(y,m-1,dd),dtext=dateSay(dd)+' '+MONTHS[m-1][1];
+    const list=calPhrases(dt,now).filter(x=>x!==dtext);
+    if(calNotes[calSel])list.unshift(calNotes[calSel]);
+    act=`<div class="calact"><div class="ttl">${WDN[dt.getDay()]}, ${dd} ${MONTHS[m-1][1]} — во фразу вставлено «${esc(dtext)}». Другая форма (заменит вставленное):</div>`+list.map(x=>`<button data-lit="${esc(x)}">${esc(x)}</button>`).join('')+'</div>';
+  }else act='<div class="small" style="margin-top:10px;font-size:18px">Нажми на число — предложу варианты: «десятого мая», «в пятницу», «через пять дней».</div>';
+  return `<div class="cal"><div class="calhead"><button data-cal="prev">◀</button><div class="t">${MONTHS[calM][0]} ${calY}</div><button data-cal="today">Сегодня</button><button data-cal="next">▶</button></div><div class="calgrid">${WD.map(x=>`<div class="cw">${x}</div>`).join('')}${cells}</div>${act}${edit?'<div class="small">Редактирование: нажми на день, чтобы добавить заметку (например, «приём врача»).</div>':''}</div>`;
+}
+function calAct(a){
+  const now=new Date();
+  if(a==='today'){calY=now.getFullYear();calM=now.getMonth();calSel=ymd(now);}
+  else{calM+=a==='next'?1:-1;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--;}}
+  renderGrid();
+}
+function calPick(k){
+  if(edit){
+    const t=prompt('Заметка на этот день (пусто — удалить):',calNotes[k]||'');if(t===null)return;
+    if(t.trim())calNotes[k]=t.trim();else delete calNotes[k];
+    setKV('cal',calNotes);
+  }
+  calSel=k;
+  const [y,m,dd]=k.split('-').map(Number);
+  calInsert(dateSay(dd)+' '+MONTHS[m-1][1]);
+  renderGrid();
+}
+/* вставка в фразу; если последним стоит слово из календаря — заменяем его */
+function calInsert(text){
+  if(calLast&&sentence.length&&sentence[sentence.length-1]===calLast)sentence.pop();
+  calLast='lit:'+text;pushWord(calLast);
+}
+
+
+/* ===================== СЦЕНАРИИ ===================== */
+const SCEN=[
+{id:'doc',e:'🩺',n:'У врача',st:[
+ {q:'Что вас беспокоит?',a:['У меня болит голова','У меня болит сердце','У меня болит спина','Мне плохо','Мне трудно говорить']},
+ {q:'Как давно это началось?',a:['Сегодня','Со вчерашнего дня','Уже несколько дней','Давно']},
+ {q:'Принимаете какие-нибудь лекарства?',a:['Да, принимаю','Нет, не принимаю','Я покажу таблетки','Спросите у моей дочери']},
+ {q:'Есть ли у вас аллергия?',a:['Нет','Да','Я не знаю']},
+ {q:'Вам понятно, что нужно делать?',a:['Да, спасибо','Повторите, пожалуйста','Напишите, пожалуйста','Позвоните моей дочери']}]},
+{id:'shop',e:'🛒',n:'Магазин и аптека',st:[
+ {q:'Чем могу помочь?',a:['Мне нужна помощь','Покажите, пожалуйста','Где это лежит?','Я ищу лекарство']},
+ {q:'Что именно вам нужно?',a:['Вот это, пожалуйста','Я покажу в телефоне','Мне нужен хлеб','Мне нужно лекарство от давления']},
+ {q:'С вас 350 рублей. Оплата картой или наличными?',a:['Картой','Наличными','Подождите, пожалуйста','Помогите мне, пожалуйста']},
+ {q:'Нужен пакет?',a:['Да, пожалуйста','Нет, спасибо']}]},
+{id:'taxi',e:'🚕',n:'Такси',st:[
+ {q:'Куда едем?',a:['Мне нужно по этому адресу','Я покажу адрес в телефоне','Отвезите меня домой','В больницу, пожалуйста']},
+ {q:'Какой подъезд?',a:['Я покажу','Вот этот','Подождите, я позвоню дочери']},
+ {q:'Приехали. С вас оплата.',a:['Картой','Наличными','Помогите мне, пожалуйста','Спасибо, всего доброго']}]},
+{id:'phone',e:'📞',n:'Звонок родным',st:[
+ {q:'Алло, слушаю вас',a:['Это я, дедушка','Мне трудно говорить','Я пишу, а телефон говорит за меня','Подождите немного']},
+ {q:'Что-то случилось?',a:['Нет, всё хорошо','Мне нужна помощь','Мне плохо, приезжайте','Позвоните мне позже']},
+ {q:'Чем помочь?',a:['Привезите, пожалуйста, лекарства','Привезите продукты','Приезжайте в гости','Просто хотел услышать вас']}]},
+{id:'cafe',e:'🍽️',n:'Кафе',st:[
+ {q:'Добрый день. Что будете заказывать?',a:['Можно посмотреть меню, пожалуйста?','Мне нужна минутка','Вот это, пожалуйста','Чай, пожалуйста']},
+ {q:'Хотите что-нибудь выпить?',a:['Да, стакан воды','Чай, пожалуйста','Пока нет']},
+ {q:'Вы готовы сделать заказ?',a:['Да, готов','Пока нет, мне нужна минутка','Что вы посоветуете?']},
+ {q:'Принести счёт?',a:['Да, пожалуйста','Оплата картой','Спасибо, всё было вкусно']}]}
+];
+let scId=null,scStep=0;
+function scHTML(){
+  if(!scId)return SCEN.map(x=>`<button class="thm" data-sc="open:${x.id}"><span class="e">${x.e}</span>${esc(x.n)}<small>${x.st.length} шага</small></button>`).join('');
+  const x=SCEN.find(z=>z.id===scId),st=x.st[scStep];
+  return `<button class="thm wide" data-sc="back">◀ Назад к сценариям — ${esc(x.n)}</button>
+  <div class="scq">Собеседник: «${esc(st.q)}»</div>`+st.a.map(t=>`<button class="sa" data-sa="${esc(t)}">${esc(t)}</button>`).join('')+
+  `<div class="scn"><button data-sc="prev">◀ Раньше</button><span style="align-self:center;font-weight:700">${scStep+1} / ${x.st.length}</span><button data-sc="next">Дальше ▶</button></div>`;
+}
+function scAct(a){
+  if(a==='back'){scId=null;scStep=0;}
+  else if(a.startsWith('open:')){scId=a.slice(5);scStep=0;}
+  else{const n=SCEN.find(z=>z.id===scId).st.length;scStep=Math.max(0,Math.min(n-1,scStep+(a==='next'?1:-1)));}
+  renderGrid();$('grid').scrollTop=0;
+}
+function scSay(t){sentence=['lit:'+t];spoken=false;renderSentence();renderSugg();doSay();}
+
+/* ===================== СВОЙ ГОЛОС ===================== */
+let recR=null,recChunks=[],recBlob=null,recIdx={};
+async function loadRecIdx(){const r=await prom(tx('kv').get('recidx'));recIdx=r?r.v:{};}
+function renderRecList(){
+  const ks=Object.keys(recIdx);
+  $('rList').innerHTML=ks.length?ks.map(k=>`<div class="rl"><button class="btn" data-rp="${esc(k)}">▶</button><span>${esc(recIdx[k])}</span><button class="btn red" data-rd="${esc(k)}">🗑</button></div>`).join(''):'<div class="small">Пока нет записей.</div>';
+}
+async function openRec(){await loadRecIdx();$('rText').value=sentenceText()||'';recBlob=null;$('rMsg').textContent='';$('rStart').disabled=false;$('rStop').disabled=true;renderRecList();$('mRec').classList.add('on');}
+$('rStart').onclick=async()=>{
+  try{
+    const st=await navigator.mediaDevices.getUserMedia({audio:true});
+    recChunks=[];recR=new MediaRecorder(st);
+    recR.ondataavailable=e=>recChunks.push(e.data);
+    recR.onstop=()=>{st.getTracks().forEach(t=>t.stop());recBlob=new Blob(recChunks,{type:recR.mimeType||'audio/webm'});$('rMsg').textContent='Запись готова. Послушай и нажми «Сохранить».';$('rStart').disabled=false;$('rStop').disabled=true;};
+    recR.start();$('rMsg').textContent='Идёт запись… Говори и нажми «Стоп».';$('rStart').disabled=true;$('rStop').disabled=false;
+  }catch(e){$('rMsg').textContent='Нет доступа к микрофону. Разреши его в браузере.';}
+};
+$('rStop').onclick=()=>{if(recR&&recR.state==='recording')recR.stop();};
+$('rPlay').onclick=()=>{if(recBlob)playBlob(recBlob);};
+$('rSave').onclick=async()=>{
+  const t=$('rText').value.trim();
+  if(!t){$('rMsg').textContent='Впиши текст фразы.';return;}
+  if(!recBlob){$('rMsg').textContent='Сначала запиши голос.';return;}
+  const k=recKey(t);await setKV(k,recBlob);recIdx[k]=t;await setKV('recidx',recIdx);
+  recBlob=null;$('rMsg').textContent='Сохранено: «'+t+'»';renderRecList();
+};
+$('rList').onclick=async e=>{
+  const pl=e.target.closest('[data-rp]');if(pl){const r=await prom(tx('kv').get(pl.dataset.rp));if(r)playBlob(r.v);return;}
+  const d=e.target.closest('[data-rd]');if(d){await dbDel('kv',d.dataset.rd);delete recIdx[d.dataset.rd];await setKV('recidx',recIdx);renderRecList();}
+};
+$('rClose').onclick=()=>$('mRec').classList.remove('on');
+$('eRec').onclick=openRec;$('sRec').onclick=openRec;
+
+/* ===================== БЫСТРОЕ ФОТО ===================== */
+$('eCam').onclick=()=>$('qFile').click();
+$('qFile').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const img=await fileToSquare(f,420);openItem(null);pendingImg=img;prevUpdate();$('fLabel').focus();}
+  catch(err){alert('Не удалось открыть фото');}
+};
+
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+(async()=>{
+  await load();buildKb();
+  if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
+  render();
+})();
+</script>
+</body>
+</html>
