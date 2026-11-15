@@ -166,6 +166,14 @@ button:active,.tile:active,.cd:active{transform:scale(.9)!important;filter:brigh
 
 #intro{grid-column:1/-1;display:block;width:100%;margin-top:8px;background:#0f766e;color:#fff;font-weight:700;font-size:18px;padding:10px 12px;border-radius:12px;min-height:46px;line-height:1.15}
 @media (max-height:520px){#intro{margin-top:5px;min-height:32px;font-size:14px;padding:4px 8px}}
+
+#intro{position:relative;overflow:hidden;margin:0 0 8px!important;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+#intro .il,#intro small{position:relative;z-index:1;display:block}
+#intro small{font-size:13px;font-weight:500;opacity:.85;margin-top:2px}
+#intro::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,255,255,.38);z-index:0}
+#intro.hold::before{width:100%;transition:width 2s linear}
+#intro.done{background:#16a34a}
+@media (max-height:520px){#intro small{display:none}#intro{margin-bottom:5px!important}}
 </style>
 </head>
 <body>
@@ -173,8 +181,8 @@ button:active,.tile:active,.cd:active{transform:scale(.9)!important;filter:brigh
 <div id="bar">
   <div id="sentence"></div>
   <div class="acts">
+    <button id="intro"><span class="il">💬 Я понимаю, но мне трудно говорить</span><small>удерживай 2 секунды</small></button>
     <div class="sayrow"><button id="say">🔊 Сказать</button><button id="maxb" aria-label="Поделиться">📤<span class="tx"> Поделиться</span></button><button id="back" aria-label="Стереть">⌫<span class="tx"> Стереть</span></button><button id="clear" aria-label="Очистить">✕<span class="tx"> Очистить</span></button></div>
-    <button id="intro">💬 Я понимаю, но мне трудно говорить</button>
   </div>
 </div>
 <div id="sugg" class="row"></div>
@@ -1186,9 +1194,15 @@ function openDB(){return new Promise((res,rej)=>{
 const tx=(s,m='readonly')=>_db.transaction(s,m).objectStore(s);
 const prom=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 const dbAll=s=>prom(tx(s).getAll());
-const dbPut=(s,o)=>prom(tx(s,'readwrite').put(o));
-const dbDel=(s,k)=>prom(tx(s,'readwrite').delete(k));
+const dbPut=(s,o)=>{const r=prom(tx(s,'readwrite').put(o));if(!(s==='kv'&&/^rec/.test(o.k)))mirrorSoon();return r;};
+const dbDel=(s,k)=>{const r=prom(tx(s,'readwrite').delete(k));mirrorSoon();return r;};
 const dbClear=s=>prom(tx(s,'readwrite').clear());
+/* автосохранение: вторая копия настроек и плиток (без фото и записей) в localStorage + запрос постоянного хранилища */
+let mirT;
+function mirrorSoon(){clearTimeout(mirT);mirT=setTimeout(()=>{try{
+  localStorage.setItem('aac-mirror',JSON.stringify({t:Date.now(),settings,cats,phrases,cal:calNotes,maxc,
+    items:items.map(i=>({...i,img:null}))}));}catch(e){}},1200);}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
 const setKV=(k,v)=>dbPut('kv',{k,v});
 
 let items=[],cats=[],settings={...DEFAULTS},bigrams={},trigrams={},phrases=[];
@@ -1228,7 +1242,16 @@ async function load(){await openDB();await load2();}
 async function load2(){
   const kv=Object.fromEntries((await dbAll('kv')).map(o=>[o.k,o.v]));
   cats=kv.cats||[];settings={...DEFAULTS,...(kv.settings||{})};if(settings.icv!==2){settings.ts=85;settings.icv=2;}if(![170,85,65].includes(settings.ts))settings.ts=85;if(settings.nokb===undefined)settings.nokb=innerHeight<520;bigrams=kv.bigrams||{};trigrams=kv.trigrams||{};phrases=kv.phrases||[];calNotes=kv.cal||{};dcnt=kv.dcnt||{};maxc=kv.maxc||[];
-  items=await dbAll('items');items.sort((a,b)=>a.order-b.order);
+  items=await dbAll('items');
+  if(!items.length&&!(kv.cats||[]).length){ /* хранилище пустое: пробуем вернуть автокопию */
+    try{const m=JSON.parse(localStorage.getItem('aac-mirror')||'null');
+      if(m&&m.items&&m.items.length){
+        settings={...DEFAULTS,...(m.settings||{})};cats=m.cats||[];phrases=m.phrases||[];calNotes=m.cal||{};maxc=m.maxc||[];
+        for(const it of m.items)await dbPut('items',it);
+        await setKV('settings',settings);await setKV('cats',cats);await setKV('phrases',phrases);await setKV('cal',calNotes);await setKV('maxc',maxc);
+        items=await dbAll('items');}}catch(e){}
+  }
+  items.sort((a,b)=>a.order-b.order);
   if(kv.engine!==ENGINE)await applyPack();
   buildDict();
 }
@@ -1505,7 +1528,17 @@ document.addEventListener('click',e=>{
   if(tab){curCat=tab.dataset.cat;dq='';dth=null;dlim=150;renderTabs();renderGrid();$('grid').scrollTop=0;}
 });
 $('say').onclick=doSay;
-$('intro').onclick=()=>speak(settings.intro||DEFAULTS.intro);
+(function(){ /* кнопка-фраза: срабатывает только при удержании 2 секунды */
+  const b=$('intro');let tm=null;
+  const stop=()=>{clearTimeout(tm);tm=null;b.classList.remove('hold');};
+  b.addEventListener('pointerdown',e=>{if(e.button>0)return;stop();void b.offsetWidth;b.classList.add('hold');
+    tm=setTimeout(()=>{tm=null;b.classList.remove('hold');b.classList.add('done');setTimeout(()=>b.classList.remove('done'),700);
+      if(navigator.vibrate)navigator.vibrate(60);speak(settings.intro||DEFAULTS.intro);},2000);});
+  ['pointerup','pointercancel','pointerleave'].forEach(n=>b.addEventListener(n,stop));
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+  b.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.repeat){stop();b.classList.add('hold');tm=setTimeout(()=>{stop();speak(settings.intro||DEFAULTS.intro);},2000);}});
+  b.addEventListener('keyup',stop);
+})();
 $('back').onclick=()=>{spoken=false;sentence.pop();renderSentence();renderSugg();};
 $('clear').onclick=()=>{sentence=[];spoken=false;renderSentence();renderSugg();};
 function mxRender(){
