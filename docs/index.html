@@ -59,9 +59,9 @@ body.nokb #kb{display:none}
 .dq #dqt{flex:1}.dq i{color:#999;font-size:20px;font-style:normal;font-weight:400}
 .dq button,.more{font-size:24px;padding:6px 14px;border-radius:10px;background:#eef;border:2px solid #99b}
 .more{grid-column:1/-1;padding:14px}
-.thm{background:#eaf1fb;border:3px solid #1f3a5f;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;height:calc(var(--ts)*.9);font-weight:700;font-size:calc(var(--ts)*.13);text-align:center}
+.thm{background:#eaf1fb;border:3px solid #1f3a5f;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;min-height:calc(var(--ts)*.9);height:auto;line-height:1.15;border-radius:8px;font-weight:700;font-size:calc(var(--ts)*.13);text-align:center}
 .thm .e{font-size:calc(var(--ts)*.35);line-height:1}.thm small{font-weight:400;color:#567;font-size:.8em}
-.thm.wide{grid-column:1/-1;height:auto;flex-direction:row;font-size:24px;padding:12px}
+.thm.wide{grid-column:1/-1;min-height:0;flex-direction:row;font-size:24px;padding:12px}
 .nopic .pic{display:none}.nopic.digits .lbl{font-size:calc(var(--ts)*.42);font-weight:800}.nopic .lbl{font-size:calc(var(--ts)*.2)}
 #grid{flex:1 1 0;min-height:0;overflow-y:auto;padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--ts),1fr));gap:12px;align-content:start;grid-auto-rows:min-content}
 .tile{background:var(--card);border:3px solid var(--line);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;box-shadow:0 2px 0 rgba(0,0,0,.08);position:relative;overflow:hidden}
