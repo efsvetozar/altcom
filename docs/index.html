@@ -64,14 +64,14 @@ body.nokb #kb{display:none}
 .thm.wide{grid-column:1/-1;height:auto;flex-direction:row;font-size:24px;padding:12px}
 .nopic .pic{display:none}.nopic.digits .lbl{font-size:calc(var(--ts)*.42);font-weight:800}.nopic .lbl{font-size:calc(var(--ts)*.2)}
 #grid{flex:1 1 0;min-height:0;overflow-y:auto;padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--ts),1fr));gap:12px;align-content:start;grid-auto-rows:min-content}
-.tile{background:var(--card);border:3px solid var(--line);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;box-shadow:0 2px 0 rgba(0,0,0,.08);position:relative;overflow:hidden}
+.tile{background:var(--card);border:3px solid var(--line);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;box-shadow:0 2px 0 rgba(0,0,0,.08);position:relative;overflow:hidden}
 #grid .tile{height:calc(var(--ts)*1.05);min-width:0}
 .t-frame{background:#e8f0fe;border-color:#9db8ee}
 .t-verb{background:#eaf7ea;border-color:#9fd09f}
 .t-adj,.t-pron{background:#fff7dc;border-color:#e2cf8a}
 .t-num{background:#f3e8fb;border-color:#c9a7e6}
 .tile:active{transform:scale(.96);border-color:var(--accent)}
-.pic{display:flex;align-items:center;justify-content:center;font-size:calc(var(--ts)*.42);line-height:1;flex:1;width:100%;min-height:0;background-size:cover;background-position:center;border-radius:12px}
+.pic{display:flex;align-items:center;justify-content:center;font-size:calc(var(--ts)*.42);line-height:1;flex:1;width:100%;min-height:0;background-size:cover;background-position:center;border-radius:5px}
 .lbl{font-size:calc(var(--ts)*.15);font-weight:700;text-align:center;line-height:1.1;word-break:break-word}
 .tile .cnt{position:absolute;top:4px;right:8px;font-size:13px;color:#888}
 .phrase{grid-column:1/-1;flex-direction:row;justify-content:flex-start;padding:14px 18px;gap:16px;height:auto!important}
@@ -140,6 +140,29 @@ body.edit #gear{opacity:1;background:#e0a800}
  #grid{padding:8px;gap:8px}
  #kb button{height:34px;font-size:18px}
 }
+
+/* анимация нажатия */
+button,.tile,.cd{transition:transform .12s ease,filter .12s ease,box-shadow .12s ease,background-color .12s}
+button:active,.tile:active,.cd:active{transform:scale(.9)!important;filter:brightness(.88);box-shadow:inset 0 3px 8px rgba(0,0,0,.28)!important;transition-duration:.04s}
+.tile:active{border-color:var(--accent)}
+@keyframes popin{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
+#sentence .chip.new{animation:popin .22s ease-out}
+@media (prefers-reduced-motion:reduce){button,.tile,.cd{transition:none}#sentence .chip.new{animation:none}}
+
+/* вкладки как вкладки */
+#tabwrap{flex:none;display:flex;align-items:flex-end;background:#1f3a5f;position:relative}
+#tabs{flex:1 1 0;min-width:0;background:transparent!important;gap:3px!important;padding:8px 8px 0!important;align-items:flex-end!important;scrollbar-width:none;scroll-behavior:smooth;cursor:grab}
+#tabs button{background:rgba(255,255,255,.14)!important;color:#dfe8f5!important;border-radius:14px 14px 0 0!important;padding:10px 16px!important;border:2px solid rgba(255,255,255,.18);border-bottom:0;margin-bottom:0}
+#tabs button.on{background:var(--bg)!important;color:#1f3a5f!important;border-color:var(--bg);padding-top:13px!important;font-weight:800}
+.tabarr{flex:none;width:38px;align-self:stretch;background:#16294a;color:#fff;font-size:30px;font-weight:700;line-height:1;display:none}
+.tabarr.show{display:block}
+
+.tile{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.tile.ishid{opacity:.35;border-style:dashed}
+.tile.ishid::after{content:'🙈';position:absolute;top:4px;right:6px;font-size:20px}
+.addtile{order:99999}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1b1b1b;color:#fff;padding:12px 20px;border-radius:10px;font-size:18px;z-index:99;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
+#toast.on{opacity:.94}
 </style>
 </head>
 <body>
@@ -147,11 +170,12 @@ body.edit #gear{opacity:1;background:#e0a800}
 <div id="bar">
   <div id="sentence"></div>
   <div class="acts">
-    <div class="sayrow"><button id="say">🔊 Сказать</button><button id="maxb" aria-label="Поделиться в Макс">📤<span class="tx"> Макс</span></button><button id="back" aria-label="Стереть">⌫<span class="tx"> Стереть</span></button><button id="clear" aria-label="Очистить">✕<span class="tx"> Очистить</span></button></div>
+    <div class="sayrow"><button id="say">🔊 Сказать</button><button id="maxb" aria-label="Поделиться">📤<span class="tx"> Поделиться</span></button><button id="back" aria-label="Стереть">⌫<span class="tx"> Стереть</span></button><button id="clear" aria-label="Очистить">✕<span class="tx"> Очистить</span></button></div>
   </div>
 </div>
 <div id="sugg" class="row"></div>
-<div id="tabs" class="row"></div>
+<div id="toast"></div>
+<div id="tabwrap"><button id="tabL" class="tabarr" aria-label="Влево">‹</button><div id="tabs" class="row"></div><button id="tabR" class="tabarr" aria-label="Вправо">›</button></div>
 <div id="editbar">
   <b>✏️ Редактирование</b>
   <button id="eAdd">➕ Плитка</button>
@@ -1239,6 +1263,7 @@ function unlockAudio(){
   try{aud.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';aud.play().catch(()=>{});}catch(e){}
   try{if(hasTTS){const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}}catch(e){}
 }
+document.addEventListener('touchstart',function(){},{passive:true});
 document.addEventListener('pointerdown',unlockAudio,{once:true,capture:true});
 document.addEventListener('touchend',unlockAudio,{once:true,capture:true});
 function speak(t){
@@ -1279,18 +1304,19 @@ const sentenceText=()=>compose(sentence);
    ОТРИСОВКА
    ===================================================================== */
 function picHTML(it){if(!it.img&&!it.emoji)return '';return it.img?`<div class="pic" style="background-image:url(${it.img})"></div>`:`<div class="pic">${esc(it.emoji||'🔹')}</div>`;}
-function tileHTML(it){const t=typ(it);return `<button class="tile t-${t}${!it.img&&!it.emoji?' nopic':''}${/^\d+$/.test(it.label)&&!it.img?' digits':''}" data-id="${it.id}">${picHTML(it)}<div class="lbl">${esc(it.label)}</div></button>`;}
+function tileHTML(it){const t=typ(it);return `<button class="tile t-${t}${it.hidden?' ishid':''}${!it.img&&!it.emoji?' nopic':''}${/^\d+$/.test(it.label)&&!it.img?' digits':''}" data-id="${it.id}">${picHTML(it)}<div class="lbl">${esc(it.label)}</div></button>`;}
 function render(){
   document.documentElement.style.setProperty('--ts',settings.ts+'px');
   document.body.classList.toggle('left',settings.left);
   document.body.classList.toggle('edit',edit);
   renderSentence();renderSugg();renderTabs();renderGrid();
 }
+let prevLen=0;
 function renderSentence(){
-  const s=$('sentence');
+  const s=$('sentence'),grew=sentence.length>prevLen;prevLen=sentence.length;
   if(!sentence.length){s.innerHTML='<span class="hint">Нажимай картинки — здесь соберётся фраза</span>';return;}
   const pv=sentenceText();
-  s.innerHTML=`<div class="pv">${esc(pv)}</div>`+sentence.map((id,i)=>{const it=byId(id);return it?`<div class="chip" data-i="${i}">${picHTML(it)}<span>${esc(it.label)}</span></div>`:''}).join('');
+  s.innerHTML=`<div class="pv">${esc(pv)}</div>`+sentence.map((id,i)=>{const it=byId(id);return it?`<div class="chip${grew&&i===sentence.length-1?' new':''}" data-i="${i}">${picHTML(it)}<span>${esc(it.label)}</span></div>`:''}).join('');
 }
 const VERBS_WANT=['Поесть','Выпить','Поспать','Отдохнуть','Погулять','Посмотреть','Позвонить','Пойти','Поехать','Купить','Поговорить'];
 const SEEDS={
@@ -1392,10 +1418,11 @@ function renderGrid(){
   }else{
     let list;
     if(curCat==='_freq')list=[...items,...dictItems].filter(i=>i.count>0).sort((a,b)=>b.count-a.count).slice(0,24);
-    else{list=items.filter(i=>i.cat===curCat);if(settings.sort)list=[...list].sort((a,b)=>b.count-a.count||a.order-b.order);}
+    else{list=items.filter(i=>i.cat===curCat&&(edit||!i.hidden));if(settings.sort)list=[...list].sort((a,b)=>b.count-a.count||a.order-b.order);}
+    if(curCat==='_freq')list=list.filter(i=>!i.hidden);
     h=list.map(tileHTML).join('');
-    if(!list.length)h='<div class="empty">'+(curCat==='_freq'?'Пока пусто — самые частые слова появятся здесь.':'Пусто. Удерживай ⚙ и добавь плитку.')+'</div>';
-    if(edit&&curCat[0]!=='_')h+=`<button class="tile addtile" id="addTile"><div class="pic">➕</div><div class="lbl">Добавить</div></button>`;
+    if(!list.length)h='<div class="empty">'+(curCat==='_freq'?'Пока пусто — самые частые слова появятся здесь.':'Пусто. Нажми «Добавить».')+'</div>';
+    if(curCat[0]!=='_')h+=`<button class="tile addtile" id="addTile"><div class="pic">➕</div><div class="lbl">Добавить</div></button>`;
   }
   g.innerHTML=h;
 }
@@ -1482,7 +1509,9 @@ async function mxCopy(t){
   try{await navigator.clipboard.writeText(t);return true;}catch(e){}
   const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy');}catch(e){}ta.remove();return ok;
 }
-$('maxb').onclick=()=>{if(!sentenceText())return;$('mxMsg').textContent='';mxRender();$('mMax').classList.add('on');};
+$('maxb').onclick=()=>{const t=sentenceText();if(!t)return;
+  if(navigator.share){navigator.share({text:t}).catch(()=>{});return;}   /* системное меню «Поделиться»: выбор приложения и контакта */
+  $('mxMsg').textContent='';mxRender();$('mMax').classList.add('on');};
 $('mxClose').onclick=()=>$('mMax').classList.remove('on');
 $('mxAdd').onclick=async()=>{
   const name=$('mxName').value.trim();let link=$('mxLink').value.trim();
@@ -1891,6 +1920,45 @@ if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.
   await load();try{await loadRecIdx();}catch(e){}buildKb();
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
   render();
+})();
+
+/* прокрутка вкладок на компьютере: стрелки, колесо мыши, перетаскивание */
+(function(){
+  const t=document.getElementById('tabs'),L=document.getElementById('tabL'),R=document.getElementById('tabR');
+  const upd=()=>{const m=t.scrollWidth-t.clientWidth>4;L.classList.toggle('show',m&&t.scrollLeft>4);R.classList.toggle('show',m&&t.scrollLeft<t.scrollWidth-t.clientWidth-4);};
+  L.onclick=()=>t.scrollBy({left:-t.clientWidth*.7});R.onclick=()=>t.scrollBy({left:t.clientWidth*.7});
+  t.addEventListener('scroll',upd);addEventListener('resize',upd);
+  t.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){t.scrollLeft+=e.deltaY;e.preventDefault();}},{passive:false});
+  let dn=false,sx=0,sl=0,moved=false;
+  t.addEventListener('mousedown',e=>{dn=true;moved=false;sx=e.clientX;sl=t.scrollLeft;t.style.scrollBehavior='auto';});
+  addEventListener('mousemove',e=>{if(!dn)return;const d=e.clientX-sx;if(Math.abs(d)>5)moved=true;t.scrollLeft=sl-d;});
+  addEventListener('mouseup',()=>{dn=false;t.style.scrollBehavior='';});
+  t.addEventListener('click',e=>{if(moved){e.stopPropagation();e.preventDefault();moved=false;}},true);
+  new MutationObserver(()=>{upd();const on=t.querySelector('.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'nearest',block:'nearest'});}).observe(t,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  setTimeout(upd,300);
+})();
+
+/* долгое нажатие на плитку — скрыть / вернуть */
+let toastT;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2600);}
+(function(){
+  let lt=null,fired=false,sx=0,sy=0;
+  const g=$('grid');
+  const clr=()=>{clearTimeout(lt);lt=null;};
+  g.addEventListener('pointerdown',e=>{
+    const t=e.target.closest('.tile');fired=false;
+    if(!t||!t.dataset.id||t.id==='addTile'||curCat[0]==='_')return;
+    const it=items.find(i=>i.id===t.dataset.id);if(!it)return;
+    sx=e.clientX;sy=e.clientY;clr();
+    lt=setTimeout(async()=>{lt=null;fired=true;it.hidden=!it.hidden;await dbPut('items',it);
+      if(navigator.vibrate)navigator.vibrate(40);
+      toast(it.hidden?'Плитка скрыта. Вернуть: удерживай ⚙, затем долго нажми на неё':'Плитка снова на месте');
+      renderGrid();},650);
+  });
+  g.addEventListener('pointermove',e=>{if(lt&&Math.hypot(e.clientX-sx,e.clientY-sy)>10)clr();});
+  ['pointerup','pointercancel','pointerleave'].forEach(n=>g.addEventListener(n,clr));
+  g.addEventListener('click',e=>{if(fired){e.stopPropagation();e.preventDefault();fired=false;}},true);
+  g.addEventListener('contextmenu',e=>{if(e.target.closest('.tile'))e.preventDefault();});
 })();
 </script>
 </body>
