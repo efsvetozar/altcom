@@ -29,7 +29,7 @@ body.left #bar{flex-direction:row-reverse}
 .chip .pic{width:40px;height:40px;border-radius:8px;font-size:28px}
 .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:340px}
 .acts button{border-radius:16px;font-size:18px;font-weight:700;color:#fff;padding:6px;min-height:50px}
-.sayrow{grid-column:1/-1;display:flex;gap:8px}.tx{display:none}.sayrow #maxb,.sayrow #back,.sayrow #clear{font-size:26px!important;padding:0!important}.sayrow #say{flex:3}.sayrow #maxb,.sayrow #back,.sayrow #clear{flex:1}
+.sayrow{grid-column:1/-1;display:flex;gap:8px}.tx{display:none}#maxb .tx{display:block;font-size:15px;font-weight:700;white-space:normal;margin-top:1px;line-height:1.05}#maxb{line-height:1.05!important}.sayrow #maxb,.sayrow #back,.sayrow #clear{font-size:26px!important;padding:0!important}.sayrow #say{flex:3}.sayrow #maxb{flex:2!important}.sayrow #maxb,.sayrow #back,.sayrow #clear{flex:1}
 #say{background:var(--ok);font-size:26px!important;flex:1 1 0;min-height:62px!important}
 #maxb{background:#7b3fe4;font-size:19px!important;flex:1 1 0;min-height:62px!important;line-height:1.1}
 .sa{grid-column:1/-1;background:#fff;border:3px solid #1f3a5f;border-radius:14px;padding:12px 16px;font-size:22px;font-weight:700;text-align:left}
@@ -124,7 +124,7 @@ body.edit #gear{opacity:1;background:#e0a800}
 .calact button{background:#fff;border:3px solid #9db8ee;border-radius:14px;padding:12px 16px;font-size:24px;font-weight:700}
 .calact .ttl{flex:0 0 100%;font-size:18px;color:#555}
 @media (max-width:640px){
- .acts{display:block}.sayrow{width:100%}.sayrow button{min-width:0}#say{flex:3 1 0!important}#maxb,#back,#clear{flex:1 1 0!important;font-size:26px!important;padding:0!important}.tx{display:none}
+ .acts{display:block}.sayrow{width:100%}.sayrow button{min-width:0}#say{flex:3 1 0!important}#maxb{flex:2 1 0!important;font-size:28px!important}#maxb .tx{font-size:15px}#clear{flex:1 1 0!important;font-size:26px!important;padding:0!important}.tx{display:none}
  #bar{flex-direction:column!important;gap:8px;padding:8px}
  #sentence{min-height:64px;max-height:26vh}#sentence .pv{font-size:26px}
  .acts{width:100%}.acts button{min-height:44px;font-size:16px}
@@ -183,7 +183,7 @@ button:active,.tile:active,.cd:active{transform:scale(.9)!important;filter:brigh
   <div id="sentence"></div>
   <div class="acts">
     <button id="intro"><span class="il">💬 Я понимаю, но мне трудно говорить</span><small>удерживай 2 секунды</small></button>
-    <div class="sayrow"><button id="say">🔊 Сказать</button><button id="maxb" aria-label="Поделиться">📤<span class="tx"> Поделиться</span></button><button id="back" aria-label="Стереть">⌫<span class="tx"> Стереть</span></button><button id="clear" aria-label="Очистить">✕<span class="tx"> Очистить</span></button></div>
+    <div class="sayrow"><button id="say">🔊 Сказать</button><button id="maxb" aria-label="Отправить в…">📤<span class="tx">Отправить в…</span></button><button id="clear" aria-label="Очистить">✕<span class="tx"> Очистить</span></button></div>
   </div>
 </div>
 <div id="sugg" class="row"></div>
@@ -304,7 +304,7 @@ button:active,.tile:active,.cd:active{transform:scale(.9)!important;filter:brigh
   <div class="line"><button class="btn" id="sRec">🎙 Свой голос (записи фраз)</button></div>
   <label class="chk"><input type="checkbox" id="sTap"> Озвучивать каждое слово при нажатии</label>
   <label class="chk"><input type="checkbox" id="sAuto"> После «Сказать» начинать новую фразу сразу</label>
-  <label class="chk"><input type="checkbox" id="sLeft"> Кнопки «Сказать/Стереть» слева (для левой руки)</label>
+  <label class="chk"><input type="checkbox" id="sLeft"> Кнопки «Сказать» и «Поделиться» слева (для левой руки)</label>
   <label class="chk"><input type="checkbox" id="sSort"> Сортировать плитки по частоте использования</label>
   <div class="small">Если выключено — плитки стоят на своих местах: человеку проще запоминать, где что лежит. Частые слова всё равно видны во вкладке «Часто» и в строке подсказок.</div>
   <label style="margin-top:16px">Автоподбор пиктограмм ARASAAC для всех слов без картинки</label>
@@ -1541,7 +1541,6 @@ $('say').onclick=doSay;
   b.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.repeat){stop();b.classList.add('hold');tm=setTimeout(()=>{stop();speak(settings.intro||DEFAULTS.intro);},2000);}});
   b.addEventListener('keyup',stop);
 })();
-$('back').onclick=()=>{spoken=false;sentence.pop();renderSentence();renderSugg();};
 $('clear').onclick=()=>{sentence=[];spoken=false;renderSentence();renderSugg();};
 function mxRender(){
   $('mxPhrase').textContent='«'+sentenceText()+'»';
