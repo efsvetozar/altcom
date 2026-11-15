@@ -28,7 +28,7 @@ body.left #bar{flex-direction:row-reverse}
 .chip .pic{width:40px;height:40px;border-radius:8px;font-size:28px}
 .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:340px}
 .acts button{border-radius:16px;font-size:18px;font-weight:700;color:#fff;padding:6px;min-height:50px}
-.sayrow{grid-column:1/-1;display:flex;gap:8px}
+.sayrow{grid-column:1/-1;display:flex;gap:8px}.tx{display:none}.sayrow #maxb,.sayrow #back,.sayrow #clear{font-size:26px!important;padding:0!important}.sayrow #say{flex:3}.sayrow #maxb,.sayrow #back,.sayrow #clear{flex:1}
 #say{background:var(--ok);font-size:26px!important;flex:1 1 0;min-height:62px!important}
 #maxb{background:#7b3fe4;font-size:19px!important;flex:1 1 0;min-height:62px!important;line-height:1.1}
 .sa{grid-column:1/-1;background:#fff;border:3px solid #1f3a5f;border-radius:14px;padding:12px 16px;font-size:22px;font-weight:700;text-align:left}
@@ -62,7 +62,7 @@ body.nokb #kb{display:none}
 .thm{background:#eaf1fb;border:3px solid #1f3a5f;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;height:calc(var(--ts)*.9);font-weight:700;font-size:calc(var(--ts)*.13);text-align:center}
 .thm .e{font-size:calc(var(--ts)*.35);line-height:1}.thm small{font-weight:400;color:#567;font-size:.8em}
 .thm.wide{grid-column:1/-1;height:auto;flex-direction:row;font-size:24px;padding:12px}
-.nopic .pic{display:none}.nopic .lbl{font-size:calc(var(--ts)*.2)}
+.nopic .pic{display:none}.nopic.digits .lbl{font-size:calc(var(--ts)*.42);font-weight:800}.nopic .lbl{font-size:calc(var(--ts)*.2)}
 #grid{flex:1 1 0;min-height:0;overflow-y:auto;padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--ts),1fr));gap:12px;align-content:start;grid-auto-rows:min-content}
 .tile{background:var(--card);border:3px solid var(--line);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;box-shadow:0 2px 0 rgba(0,0,0,.08);position:relative;overflow:hidden}
 #grid .tile{height:calc(var(--ts)*1.05);min-width:0}
@@ -123,17 +123,18 @@ body.edit #gear{opacity:1;background:#e0a800}
 .calact button{background:#fff;border:3px solid #9db8ee;border-radius:14px;padding:12px 16px;font-size:24px;font-weight:700}
 .calact .ttl{flex:0 0 100%;font-size:18px;color:#555}
 @media (max-width:640px){
+ .acts{display:block}.sayrow{width:100%}.sayrow button{min-width:0}#say{flex:3 1 0!important}#maxb,#back,#clear{flex:1 1 0!important;font-size:26px!important;padding:0!important}.tx{display:none}
  #bar{flex-direction:column!important;gap:8px;padding:8px}
  #sentence{min-height:64px;max-height:26vh}#sentence .pv{font-size:26px}
  .acts{width:100%}.acts button{min-height:44px;font-size:16px}
- #say{font-size:22px!important;min-height:52px!important}#maxb{font-size:16px!important;min-height:52px!important}
+ #say{font-size:22px!important;min-height:52px!important}#maxb{min-height:52px!important}
  #sugg{min-height:52px}#sugg .tile .lbl{font-size:18px}#sugg .tile .pic{width:34px;height:34px;font-size:24px}
  #tabs button{font-size:17px;padding:9px 12px}
 }
 @media (max-height:520px){
  #bar{padding:5px;gap:6px}#sentence{min-height:50px;max-height:30vh}#sentence .pv{font-size:22px}
  .acts{width:300px;gap:5px}.acts button{min-height:30px;font-size:14px;border-radius:10px}
- #say{font-size:18px!important;min-height:36px!important}#maxb{font-size:14px!important;min-height:36px!important}
+ #say{font-size:18px!important;min-height:36px!important}#maxb{min-height:36px!important}
  #sugg{min-height:40px;padding:4px 8px}#sugg .tile{padding:2px 10px}#sugg .tile .pic{width:28px;height:28px;font-size:20px}#sugg .tile .lbl{font-size:15px}
  #tabs{padding:4px 8px}#tabs button{font-size:15px;padding:5px 10px}
  #grid{padding:8px;gap:8px}
@@ -146,9 +147,7 @@ body.edit #gear{opacity:1;background:#e0a800}
 <div id="bar">
   <div id="sentence"></div>
   <div class="acts">
-    <div class="sayrow"><button id="say">🔊 Сказать</button><button id="maxb">📤 Поделиться в Макс</button></div>
-    <button id="back">⌫ Стереть</button>
-    <button id="clear">✕ Очистить</button>
+    <div class="sayrow"><button id="say">🔊 Сказать</button><button id="maxb" aria-label="Поделиться в Макс">📤<span class="tx"> Макс</span></button><button id="back" aria-label="Стереть">⌫<span class="tx"> Стереть</span></button><button id="clear" aria-label="Очистить">✕<span class="tx"> Очистить</span></button></div>
   </div>
 </div>
 <div id="sugg" class="row"></div>
@@ -385,6 +384,96 @@ const NUMTXT={1:'один/одна/одно/одни',2:'два/две/два/д
    СБОРКА ФРАЗЫ
    ===================================================================== */
 const typ=t=>(t.gram&&t.gram.t)||'word';
+/* --- спряжение глаголов: «Я» + «пойти» → «я пойду»; «вчера» → прошедшее --- */
+const SUBJ={'я':[1,'sg','m'],'ты':[2,'sg','m'],'он':[3,'sg','m'],'она':[3,'sg','f'],'оно':[3,'sg','n'],'мы':[1,'pl','p'],'вы':[2,'pl','p'],'они':[3,'pl','p']};
+const PI=(p,n)=>n==='pl'?p+2:p-1;                     /* индекс 0..5 */
+const F6=(s,e)=>e.split(',').map(x=>s+x);
+const E1='ю,ешь,ет,ем,ете,ют',E1o='у,ешь,ет,ем,ете,ут',E1y='у,ёшь,ёт,ём,ёте,ут',E2='ю,ишь,ит,им,ите,ят',E2u='у,ишь,ит,им,ите,ат';
+const ALT={'б':'бл','п':'пл','в':'вл','м':'мл','ф':'фл','д':'ж','з':'ж','т':'ч','с':'ш','ст':'щ','ск':'щ','г':'ж','х':'ш'};
+const SPEC=[
+ [/^быть$/,m=>['буду','будешь','будет','будем','будете','будут']],
+ [/^(.*)йти$/,m=>F6(m[1]==='при'?'при':m[1]+'й','ду,дёшь,дёт,дём,дёте,дут')],
+ [/^идти$/,m=>F6('','иду,идёшь,идёт,идём,идёте,идут')],
+ [/^(.*)ехать$/,m=>F6(m[1],'еду,едешь,едет,едем,едете,едут')],
+ [/^(.*)хотеть$/,m=>F6(m[1],'хочу,хочешь,хочет,хотим,хотите,хотят')],
+ [/^(.*)мочь$/,m=>F6(m[1],'могу,можешь,может,можем,можете,могут')],
+ [/^(по|съ)?есть$/,m=>F6(m[1]||'','ем,ешь,ест,едим,едите,едят')],
+ [/^(вы|по|до|за|при|раз|на|пере)?пить$/,m=>F6(m[1]||'','пью,пьёшь,пьёт,пьём,пьёте,пьют')],
+ [/^(.*)спать$/,m=>F6(m[1],'сплю,спишь,спит,спим,спите,спят')],
+ [/^(пере|по|от|при|вы|под|за|про|раз)?дать$/,m=>F6(m[1]||'','дам,дашь,даст,дадим,дадите,дадут')],
+ [/^взять$/,()=>['возьму','возьмёшь','возьмёт','возьмём','возьмёте','возьмут']],
+ [/^(.*)жить$/,m=>F6(m[1],'живу,живёшь,живёт,живём,живёте,живут')],
+ [/^(.*)ждать$/,m=>F6(m[1],'жду,ждёшь,ждёт,ждём,ждёте,ждут')],
+ [/^(.*)звать$/,m=>F6(m[1],'зову,зовёшь,зовёт,зовём,зовёте,зовут')],
+ [/^(.*)бежать$/,m=>F6(m[1],'бегу,бежишь,бежит,бежим,бежите,бегут')],
+ [/^(.*)лететь$/,m=>F6(m[1],'лечу,летишь,летит,летим,летите,летят')],
+ [/^лечь$/,()=>['лягу','ляжешь','ляжет','ляжем','ляжете','лягут']],
+ [/^сесть$/,()=>['сяду','сядешь','сядет','сядем','сядете','сядут']],
+ [/^встать$/,()=>['встану','встанешь','встанет','встанем','встанете','встанут']],
+ [/^(.*)казать$/,m=>F6(m[1]+'ка','жу,жешь,жет,жем,жете,жут')],
+ [/^(.*)брать$/,m=>F6(m[1],'беру,берёшь,берёт,берём,берёте,берут')],
+ [/^(.*)писать$/,m=>F6(m[1],'пишу,пишешь,пишет,пишем,пишете,пишут')],
+ [/^(.*)искать$/,m=>F6(m[1],'ищу,ищешь,ищет,ищем,ищете,ищут')],
+ [/^(.*)мыть$/,m=>F6(m[1],'мою,моешь,моет,моем,моете,моют')],
+ [/^(на|раз|о|по)?деть$/,m=>F6(m[1]+'де','ну,нешь,нет,нем,нете,нут')],
+ [/^(.*)начать$/,m=>F6(m[1]+'на','чну,чнёшь,чнёт,чнём,чнёте,чнут')],
+ [/^(.*)понять$/,m=>F6(m[1],'пойму,поймёшь,поймёт,поймём,поймёте,поймут')],
+ [/^(.*)принять$/,m=>F6(m[1],'приму,примешь,примет,примем,примете,примут')],
+ [/^(.*)давать$/,m=>F6(m[1]+'да','ю,ёшь,ёт,ём,ёте,ют')],
+ [/^(.*)ставать$/,m=>F6(m[1]+'ста','ю,ёшь,ёт,ём,ёте,ют')],
+ [/^(.*)знавать$/,m=>F6(m[1]+'зна','ю,ёшь,ёт,ём,ёте,ют')],
+];
+const PAST_IRR=[
+ [/^(.*)йти$/,m=>[m[1]+(m[1]==='вы'?'шел':'шёл'),m[1]+'шла',m[1]+'шло',m[1]+'шли']],
+ [/^идти$/,()=>['шёл','шла','шло','шли']],
+ [/^(.*)мочь$/,m=>[m[1]+'мог',m[1]+'могла',m[1]+'могло',m[1]+'могли']],
+ [/^лечь$/,()=>['лёг','легла','легло','легли']],
+ [/^(.*)нести$/,m=>[m[1]+'нёс',m[1]+'несла',m[1]+'несло',m[1]+'несли']],
+ [/^(.*)везти$/,m=>[m[1]+'вёз',m[1]+'везла',m[1]+'везло',m[1]+'везли']],
+ [/^(.*)печь$/,m=>[m[1]+'пёк',m[1]+'пекла',m[1]+'пекло',m[1]+'пекли']],
+];
+const SEC_E=/^(смотреть|посмотреть|увидеть|видеть|сидеть|посидеть|терпеть|потерпеть|вертеть|стоять|постоять|(.*)(жать|чать|шать|щать))$/;
+const NOT2=/^(ржать|обижать|пожать)$/;
+const ALT2={'б':'бл','п':'пл','в':'вл','м':'мл','ф':'фл','д':'ж','з':'ж','т':'ч','с':'ш','г':'ж','х':'ш','ст':'щ','ск':'щ'};
+function first2(st,ending){ /* 1 лицо 2-го спряжения: чередование согласных */
+  const two=st.slice(-2),l=st.slice(-1);
+  if(ALT2[two])st=st.slice(0,-2)+ALT2[two];else if(ALT2[l])st=st.slice(0,-1)+ALT2[l];
+  return st+(/[жчшщ]$/.test(st)?'у':ending);
+}
+function presentForms(inf){
+  let r=false,w=inf;if(/ся$/.test(w)){r=true;w=w.slice(0,-2);}
+  const refl=out=>r?out.map(x=>x+(/[аеёиоуыэюя]$/.test(x)?'сь':'ся')):out;
+  for(const [re,f] of SPEC){const m=w.match(re);if(m)return refl(f(m));}
+  let out=null;
+  if(w==='бо'+'ять')out=F6('бо','ю,ишь,ит,им,ите,ят');
+  else if(/(овать|евать)$/.test(w))out=F6(w.slice(0,-5),'ую,уешь,ует,уем,уете,уют');
+  else if(/(ывать|ивать)$/.test(w))out=F6(w.slice(0,-2),E1);
+  else if(/ыть$/.test(w))out=F6(w.slice(0,-3),'ою,оешь,оет,оем,оете,оют');
+  else if(/нуть$/.test(w))out=F6(w.slice(0,-3),E1y);
+  else if(/ить$/.test(w)){const st=w.slice(0,-3);out=F6(st,E2);out[0]=first2(st,'ю');}
+  else if(SEC_E.test(w)&&!NOT2.test(w)){
+    const st=w.slice(0,-3),ya=/(еть|ять)$/.test(w);
+    out=F6(st,ya?E2:'у,ишь,ит,им,ите,ат');
+    if(/^(смотреть|посмотреть)$/.test(w))out[0]=st+'ю';
+    else if(/(стоять)$/.test(w))out[0]=st+'ю',out=out.map((x,i)=>i===5?st+'ят':x);
+    else if(ya)out[0]=first2(st,'ю');
+    else out[0]=st+'у';
+    if(ya&&!/стоять/.test(w))out=out.map((x,i)=>i===5?st+'ят':x);}
+  else if(/(ать|ять|еть)$/.test(w))out=F6(w.slice(0,-2),E1);
+  return out?refl(out):null;
+}
+function pastForms(inf){
+  for(const [re,f] of PAST_IRR){const m=inf.match(re);if(m)return f(m);}
+  if(!/ть(ся)?$/.test(inf))return null;
+  const r=/ся$/.test(inf),b=inf.replace(/ся$/,'').slice(0,-2);
+  return r?[b+'лся',b+'лась',b+'лось',b+'лись']:[b+'л',b+'ла',b+'ло',b+'ли'];
+}
+function conjugate(inf,subj,past){
+  inf=lc(inf);if(!/^[а-яё]+$/.test(inf)||!/(ть|ти|чь)(ся)?$/.test(inf))return inf;
+  const [p,n,g]=subj;
+  if(past){const f=pastForms(inf);if(!f)return inf;return n==='pl'||g==='p'?f[3]:g==='f'?f[1]:g==='n'?f[2]:f[0];}
+  const f=presentForms(inf);return f?f[PI(p,n)]:inf;
+}
 function compose(ids){
   const toks=ids.map(id=>byId(id)).filter(Boolean);
   if(!toks.length)return'';
@@ -402,6 +491,15 @@ function compose(ids){
   const nextNoun=i=>{for(let j=i+1;j<T.length;j++){if(transparent(T[j]))continue;return typ(T[j])==='noun'?T[j]:null;}return null;};
   const GI={m:0,f:1,n:2,p:3};
   let numN=null;
+  const pastCtx=T.some(t=>/^(вчера|позавчера)$/.test(lc(t.label)));
+  const subjectOf=i=>{
+    for(let j=i-1;j>=0;j--){const x=T[j],ty=typ(x),g=x.gram||{};
+      if(ty==='verb'||ty==='frame')return null;
+      if(ty==='word'&&SUBJ[lc(x.label)])return SUBJ[lc(x.label)];
+      if(ty==='noun'&&cases[j]==='nom'){let k=j-1;while(k>=0&&transparent(T[k]))k--;
+        if(k>=0&&typ(T[k])==='frame')return null;
+        return[3,g.g==='p'?'pl':'sg',g.g||'m'];}}
+    return null;};
   const parts=[];
   T.forEach((t,i)=>{
     const g=t.gram||{},ty=typ(t),c=cases[i];let s;
@@ -425,6 +523,7 @@ function compose(ids){
       if(g.n===1&&c==='acc'&&nn&&nn.gram.g==='f')s='одну';
       numN=g.n;
     }else if(ty==='verb'){s=lc(t.say||t.label);
+      const sj=subjectOf(i);if(sj&&!/\s/.test(s))s=conjugate(s,sj,pastCtx);
     }else if(ty==='frame'){
       s=g.tx||lc(t.label);
       if(s.includes('{}')){
@@ -631,9 +730,7 @@ date:[
  ...MONTHS.map(([l,s])=>w('🗓️',l,s))
 ],
 num:[
- num('1️⃣','Один',1),num('2️⃣','Два',2),num('3️⃣','Три',3),num('4️⃣','Четыре',4),num('5️⃣','Пять',5),num('6️⃣','Шесть',6),num('7️⃣','Семь',7),
- num('8️⃣','Восемь',8),num('9️⃣','Девять',9),num('🔟','Десять',10),num('🔢','Одиннадцать',11),num('🔢','Двенадцать',12),num('🔢','Пятнадцать',15),
- num('🔢','Двадцать',20),num('🔢','Тридцать',30),num('🔢','Сорок',40),num('🔢','Пятьдесят',50),num('🔢','Четырнадцать',14),num('🔢','Восемнадцать',18),num('🔢','Шестьдесят',60),num('🔢','Семьдесят',70),num('🔢','Восемьдесят',80),num('🔢','Девяносто',90),num('💯','Сто',100),
+ num('','1',1,'один'),num('','2',2,'два'),num('','3',3,'три'),num('','4',4,'четыре'),num('','5',5,'пять'),num('','6',6,'шесть'),num('','7',7,'семь'),num('','8',8,'восемь'),num('','9',9,'девять'),num('','10',10,'десять'),num('','11',11,'одиннадцать'),num('','12',12,'двенадцать'),num('','13',13,'тринадцать'),num('','14',14,'четырнадцать'),num('','15',15,'пятнадцать'),num('','16',16,'шестнадцать'),num('','17',17,'семнадцать'),num('','18',18,'восемнадцать'),num('','19',19,'девятнадцать'),num('','20',20,'двадцать'),num('','30',30,'тридцать'),num('','40',40,'сорок'),num('','50',50,'пятьдесят'),num('','60',60,'шестьдесят'),num('','70',70,'семьдесят'),num('','80',80,'восемьдесят'),num('','90',90,'девяносто'),num('','100',100,'сто'),num('','200',200,'двести'),num('','300',300,'триста'),num('','500',500,'пятьсот'),num('','1000',1000,'тысяча'),
  w('➗','Половина'),w('➗','Полчаса')
 ]
 };
@@ -1045,7 +1142,7 @@ function buildDict(){
   dictItems=out;
 }
 const THEMES=[...DICT.map(t=>({id:t.id,name:t.name,e:t.e})),{id:'prep',name:'Предлоги',e:'📍'}];
-const ENGINE=4;
+const ENGINE=5;
 
 /* =====================================================================
    ХРАНИЛИЩЕ
@@ -1083,6 +1180,9 @@ async function applyPack(){
     const ex=items.find(i=>i.cat===cat&&i.label===s.l);
     if(ex){matched.add(ex.id);if(!ex.gram){ex.gram=s.gram;ex.say=s.say||'';await dbPut('items',ex);}}
     else{const it={id:uid()+(k++),label:s.l,say:s.say||'',emoji:s.e,img:null,cat,gram:s.gram,count:0,order:++order};items.push(it);matched.add(it.id);await dbPut('items',it);}
+  }
+  for(const it of [...items]){ /* старые словесные плитки чисел заменены цифрами */
+    if(it.cat==='num'&&it.gram&&it.gram.t==='num'&&!it.img&&!/^\d+$/.test(it.label)&&!matched.has(it.id)){await dbDel('items',it.id);items=items.filter(x=>x!==it);}
   }
   for(const it of [...items]){
     if(!it.gram&&!it.img&&!matched.has(it.id)&&legacy.has(it.cat+'|'+it.label+'|'+it.emoji)){await dbDel('items',it.id);items=items.filter(x=>x!==it);}
@@ -1137,34 +1237,31 @@ let unlocked=false;
 function unlockAudio(){
   if(unlocked)return;unlocked=true;
   try{aud.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';aud.play().catch(()=>{});}catch(e){}
-  try{if(hasTTS){const u=new SpeechSynthesisUtterance('');u.volume=0;speechSynthesis.speak(u);}}catch(e){}
+  try{if(hasTTS){const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}}catch(e){}
 }
 document.addEventListener('pointerdown',unlockAudio,{once:true,capture:true});
 document.addEventListener('touchend',unlockAudio,{once:true,capture:true});
 function speak(t){
   if(!t)return;const my=++spkId;
-  clearTimeout(speakT);try{aud.pause();}catch(e){}if(hasTTS)speechSynthesis.cancel();
-  recGetBlob(t).then(b=>{if(my!==spkId)return;if(b)playBlob(b);else speakEngine(t);});
-}
-function speakBrowser(t){
-  clearTimeout(speakT);
-  if(!hasTTS)return;
-  speechSynthesis.cancel();
-  /* без паузы после cancel() Chrome иногда «глотает» следующую фразу */
-  speakT=setTimeout(()=>{
-    const u=new SpeechSynthesisUtterance(t);
-    u.lang='ru-RU';u.rate=settings.rate;u.pitch=settings.pitch;u.volume=settings.vol;
-    const v=pickVoice();if(v){u.voice=v;u.lang=v.lang||'ru-RU';}
-    speechSynthesis.speak(u);
-  },60);
-}
-function speakEngine(t){
-  if(!t)return;
-  clearTimeout(speakT);
-  try{aud.pause();}catch(e){}
-  if(hasTTS)speechSynthesis.cancel();
+  clearTimeout(speakT);try{aud.pause();}catch(e){}
+  /* Safari разрешает озвучку только прямо внутри касания — без await и таймеров */
+  if(typeof recIdx==='object'&&recIdx&&recIdx[recKey(t)]){
+    if(hasTTS)speechSynthesis.cancel();
+    recGetBlob(t).then(b=>{if(my!==spkId)return;if(b)playBlob(b);else speakBrowser(t);});
+    return;
+  }
   speakBrowser(t);
 }
+function speakBrowser(t){
+  if(!hasTTS)return;
+  try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();}catch(e){}
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang='ru-RU';u.rate=settings.rate;u.pitch=settings.pitch;u.volume=settings.vol;
+  const v=pickVoice();if(v){u.voice=v;u.lang=v.lang||'ru-RU';}
+  try{speechSynthesis.resume();}catch(e){}
+  speechSynthesis.speak(u);
+}
+function speakEngine(t){speakBrowser(t);}
 function fillVoices(){
   const sel=$('sVoice');if(!sel)return;
   const list=ruVoices().sort((a,b)=>voiceScore(b)-voiceScore(a));
@@ -1182,7 +1279,7 @@ const sentenceText=()=>compose(sentence);
    ОТРИСОВКА
    ===================================================================== */
 function picHTML(it){if(!it.img&&!it.emoji)return '';return it.img?`<div class="pic" style="background-image:url(${it.img})"></div>`:`<div class="pic">${esc(it.emoji||'🔹')}</div>`;}
-function tileHTML(it){const t=typ(it);return `<button class="tile t-${t}${!it.img&&!it.emoji?' nopic':''}" data-id="${it.id}">${picHTML(it)}<div class="lbl">${esc(it.label)}</div></button>`;}
+function tileHTML(it){const t=typ(it);return `<button class="tile t-${t}${!it.img&&!it.emoji?' nopic':''}${/^\d+$/.test(it.label)&&!it.img?' digits':''}" data-id="${it.id}">${picHTML(it)}<div class="lbl">${esc(it.label)}</div></button>`;}
 function render(){
   document.documentElement.style.setProperty('--ts',settings.ts+'px');
   document.body.classList.toggle('left',settings.left);
@@ -1791,7 +1888,7 @@ $('qFile').onchange=async e=>{
 
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 (async()=>{
-  await load();buildKb();
+  await load();try{await loadRecIdx();}catch(e){}buildKb();
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
   render();
 })();
